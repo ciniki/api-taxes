@@ -31,6 +31,7 @@ function ciniki_taxes_history($ciniki) {
 		'object'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Object'), 
 		'object_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'ID'), 
 		'field'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Field'), 
+		'field_value'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Field Value'), 
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
@@ -47,6 +48,12 @@ function ciniki_taxes_history($ciniki) {
 	}
 
 	if( $args['object'] == 'ciniki.taxes.rate' ) {
+		if( $args['field'] == 'type_id' ) {
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryLinkedToggle');
+			return ciniki_core_dbGetModuleHistoryLinkedToggle($ciniki, 'ciniki.taxes', 'ciniki_tax_history',
+				$args['business_id'], 'ciniki_tax_type_rates', 
+				'rate_id', $args['object_id'], 'type_id', $args['field_value']);
+		}
 		if( $args['field'] == 'start_date' || $args['field'] == 'end_date' ) {
 			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
 			return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.taxes', 'ciniki_tax_history', $args['business_id'], 'ciniki_tax_rates', $args['object_id'], $args['field'],'date');
@@ -57,13 +64,15 @@ function ciniki_taxes_history($ciniki) {
 	}
 
 	elseif( $args['object'] == 'ciniki.taxes.type' ) {
+		if( $args['field'] == 'rate_id' ) {
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryLinkedToggle');
+			return ciniki_core_dbGetModuleHistoryLinkedToggle($ciniki, 'ciniki.taxes', 'ciniki_tax_history',
+				$args['business_id'], 'ciniki_tax_type_rates', 
+				'type_id', $args['object_id'], 'rate_id', $args['field_value']);
+		}
+
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
 		return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.taxes', 'ciniki_tax_history', $args['business_id'], 'ciniki_tax_types', $args['object_id'], $args['field']);
-	}
-
-	elseif( $args['object'] == 'ciniki.taxes.type_rate' ) {
-		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
-		return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.taxes', 'ciniki_tax_history', $args['business_id'], 'ciniki_tax_type_rates', $args['object_id'], $args['field']);
 	}
 
 	else {
