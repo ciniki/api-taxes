@@ -76,7 +76,7 @@ function ciniki_taxes_history($ciniki) {
 	}
 
 	else {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1393', 'msg'=>'Invalid history object'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1380', 'msg'=>'Invalid history object'));
 	}
 }
 ?>

@@ -53,7 +53,7 @@ function ciniki_taxes_rateDelete(&$ciniki) {
 			return $rc;
 		}
 		if( isset($rc['num']['invoices']) && $rc['num']['invoices'] > 0 ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1385', 'msg'=>'Invoices are still using this tax rate, it cannot be deleted.'));
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1378', 'msg'=>'Invoices are still using this tax rate, it cannot be deleted.'));
 		}
 	}
 

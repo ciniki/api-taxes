@@ -25,7 +25,7 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
 	// Get the taxes for a business, that are for the time period the invoice is in.
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'taxes', 'private', 'ratesForDate');
-	$rc = ciniki_taxes_ratesForDate($ciniki, $business_id, $invoice['invoice_date']);
+	$rc = ciniki_taxes_ratesForDate($ciniki, $business_id, $invoice['date']);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
@@ -50,16 +50,21 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
 			//
 			// Check if the tax should be applied
 			//
-			if( in_array($item['taxtype_id'], $tax['type_ids']) ) {
+			if( isset($tax['types']) && is_array($tax['types']) 
+				&& array_key_exists($item['taxtype_id'], $tax['types']) ) {
 				if( $tax['item_percentage'] > 0 ) {
-					$business_taxes[$tid]['calculated_items_amount'] += 
-						($item['quantity'] * $item['unit_amount'])*($tax['item_percentage']/100);
+					$item_amount = bcmul($item['amount'], bcdiv($tax['item_percentage'], 100, 6), 4);
+					$business_taxes[$tid]['calculated_items_amount'] = 
+						bcadd($business_taxes[$tid]['calculated_items_amount'], $item_amount, 4);
 				}
 				if( $tax['item_amount'] > 0 ) {
-					$business_taxes[$tid]['calculated_items_amount'] += $item['quantity']*$tax['item_amount'];
+					$business_taxes[$tid]['calculated_items_amount'] = 
+						bcadd($business_taxes[$tid]['calculated_items_amount'], 
+							bcmul($item['quantity'], $tax['item_amount'], 4), 4);
 				}
 				if( $tax['invoice_amount'] > 0 ) {
-					$business_taxes[$tid]['calculated_invoice_amount'] = $tax['invoice_amount'];
+					$business_taxes[$tid]['calculated_invoice_amount'] = 
+						bcadd($business_taxes[$tid]['calculated_invoice_amount'], $tax['invoice_amount'], 4);
 				}
 			}
 		}

@@ -35,12 +35,18 @@ function ciniki_taxes_rateGet(&$ciniki) {
         return $rc;
     }
 
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'timezoneOffset');
-	$utc_offset = ciniki_businesses_timezoneOffset($ciniki);
+//	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'timezoneOffset');
+//	$utc_offset = ciniki_businesses_timezoneOffset($ciniki);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
+	$rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$intl_timezone = $rc['settings']['intl-default-timezone'];
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
-	$date_format = ciniki_users_dateFormat($ciniki);
+	$date_format = ciniki_users_dateFormat($ciniki, 'php');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'datetimeFormat');
-	$datetime_format = ciniki_users_datetimeFormat($ciniki);
+	$datetime_format = ciniki_users_datetimeFormat($ciniki, 'php');
 
 	//
 	// Get the details about a tax
@@ -48,10 +54,8 @@ function ciniki_taxes_rateGet(&$ciniki) {
 	$strsql = "SELECT ciniki_tax_rates.id, ciniki_tax_rates.name, "
 		. "ciniki_tax_rates.item_percentage, ciniki_tax_rates.item_amount, ciniki_tax_rates.invoice_amount, "
 		. "ciniki_tax_rates.flags, "
-		. "DATE_FORMAT(CONVERT_TZ(ciniki_tax_rates.start_date, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
-			. "'" . ciniki_core_dbQuote($ciniki, $date_format) . " %H:%i:%S') AS start_date, "
-		. "DATE_FORMAT(CONVERT_TZ(ciniki_tax_rates.end_date, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
-			. "'" . ciniki_core_dbQuote($ciniki, $date_format) . " %H:%i:%S') AS end_date, "
+		. "ciniki_tax_rates.start_date, "
+		. "ciniki_tax_rates.end_date, "
 		. "ciniki_tax_type_rates.type_id AS type_ids "
 		. "FROM ciniki_tax_rates "
 		. "LEFT JOIN ciniki_tax_type_rates ON (ciniki_tax_rates.id = ciniki_tax_type_rates.rate_id "
@@ -65,13 +69,15 @@ function ciniki_taxes_rateGet(&$ciniki) {
 		array('container'=>'rates', 'fname'=>'id', 'name'=>'rate',
 			'fields'=>array('id', 'name', 'item_percentage', 'item_amount', 'invoice_amount',
 				'flags', 'start_date', 'end_date', 'type_ids'),
+			'utctotz'=>array('start_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),
+				'end_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)),
 			'idlists'=>array('type_ids')),
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
 	if( !isset($rc['rates']) || !isset($rc['rates'][0]['rate']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1386', 'msg'=>'Unable to find the tax rate'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1394', 'msg'=>'Unable to find the tax rate'));
 	}
 	$rate = $rc['rates'][0]['rate'];
 

@@ -43,18 +43,6 @@ function ciniki_taxes_typeDelete(&$ciniki) {
 	//
 	$num_invoices = 0;
 	if( isset($modules['ciniki.products']) ) {
-//		$strsql = "SELECT 'invoices', COUNT(*) "
-//			. "FROM ciniki_products "
-//			. "WHERE type_id = '" . ciniki_core_dbQuote($ciniki, $args['type_id']) . "' "
-//			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-//			. "";
-//		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.products', 'num');
-//		if( $rc['stat'] != 'ok' ) {
-//			return $rc;
-//		}
-//		if( isset($rc['num']['invoices']) && $rc['num']['invoices'] > 0 ) {
-//			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1385', 'msg'=>'Invoices are still using this tax rate, it cannot be deleted.'));
-//		}
 	}
 
 	//

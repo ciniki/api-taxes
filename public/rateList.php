@@ -34,10 +34,16 @@ function ciniki_taxes_rateList(&$ciniki) {
         return $rc;
     }
 
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'timezoneOffset');
-	$utc_offset = ciniki_businesses_timezoneOffset($ciniki);
+//	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'timezoneOffset');
+//	$utc_offset = ciniki_businesses_timezoneOffset($ciniki);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
+	$rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$intl_timezone = $rc['settings']['intl-default-timezone'];
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
-	$date_format = ciniki_users_dateFormat($ciniki);
+	$date_format = ciniki_users_dateFormat($ciniki, 'php');
 
 	//
 	// Get the list of future taxes
@@ -48,11 +54,8 @@ function ciniki_taxes_rateList(&$ciniki) {
 		. "ciniki_tax_rates.item_amount, "
 		. "ciniki_tax_rates.invoice_amount, "
 		. "ciniki_tax_rates.flags, "
-		. "DATE_FORMAT(CONVERT_TZ(ciniki_tax_rates.start_date, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
-			. "'" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS start_date, "
-		. "IF(ciniki_tax_rates.end_date = '0000-00-00 00:00:00', 'no end', "
-			. "DATE_FORMAT(CONVERT_TZ(ciniki_tax_rates.end_date, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
-			. "'" . ciniki_core_dbQuote($ciniki, $date_format) . "')) AS end_date, "
+		. "ciniki_tax_rates.start_date, "
+		. "ciniki_tax_rates.end_date, "
 		. "ciniki_tax_type_rates.type_id AS type_ids, "
 		. "IFNULL(ciniki_tax_types.name, '') AS types "
 		. "FROM ciniki_tax_rates "
@@ -72,6 +75,8 @@ function ciniki_taxes_rateList(&$ciniki) {
 		array('container'=>'rates', 'fname'=>'id', 'name'=>'rate',
 			'fields'=>array('id', 'name', 'item_percentage', 'item_amount', 'invoice_amount',
 				'flags', 'start_date', 'end_date', 'type_ids', 'types'),
+			'utctotz'=>array('start_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
+				'end_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
 			'idlists'=>array('type_ids'), 'lists'=>array('types')),
 		));
 	if( $rc['stat'] != 'ok' ) {
@@ -92,11 +97,8 @@ function ciniki_taxes_rateList(&$ciniki) {
 		. "ciniki_tax_rates.item_amount, "
 		. "ciniki_tax_rates.invoice_amount, "
 		. "ciniki_tax_rates.flags, "
-		. "DATE_FORMAT(CONVERT_TZ(ciniki_tax_rates.start_date, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
-			. "'" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS start_date, "
-		. "IF(ciniki_tax_rates.end_date = '0000-00-00 00:00:00', 'no end', "
-			. "DATE_FORMAT(CONVERT_TZ(ciniki_tax_rates.end_date, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
-			. "'" . ciniki_core_dbQuote($ciniki, $date_format) . "')) AS end_date, "
+		. "ciniki_tax_rates.start_date, "
+		. "ciniki_tax_rates.end_date, "
 		. "ciniki_tax_type_rates.type_id AS type_ids, "
 		. "IFNULL(ciniki_tax_types.name, '') AS types "
 		. "FROM ciniki_tax_rates "
@@ -116,6 +118,8 @@ function ciniki_taxes_rateList(&$ciniki) {
 		array('container'=>'rates', 'fname'=>'id', 'name'=>'rate',
 			'fields'=>array('id', 'name', 'item_percentage', 'item_amount', 'invoice_amount',
 				'flags', 'start_date', 'end_date', 'type_ids', 'types'),
+			'utctotz'=>array('start_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
+				'end_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
 			'idlists'=>array('type_ids'), 'lists'=>array('types')),
 		));
 	if( $rc['stat'] != 'ok' ) {
@@ -136,11 +140,8 @@ function ciniki_taxes_rateList(&$ciniki) {
 		. "ciniki_tax_rates.item_amount, "
 		. "ciniki_tax_rates.invoice_amount, "
 		. "ciniki_tax_rates.flags, "
-		. "DATE_FORMAT(CONVERT_TZ(ciniki_tax_rates.start_date, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
-			. "'" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS start_date, "
-		. "IF(ciniki_tax_rates.end_date = '0000-00-00 00:00:00', 'no end', "
-			. "DATE_FORMAT(CONVERT_TZ(ciniki_tax_rates.end_date, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
-			. "'" . ciniki_core_dbQuote($ciniki, $date_format) . "')) AS end_date, "
+		. "ciniki_tax_rates.start_date, "
+		. "ciniki_tax_rates.end_date, "
 		. "ciniki_tax_type_rates.type_id AS type_ids, "
 		. "IFNULL(ciniki_tax_types.name, '') AS types "
 		. "FROM ciniki_tax_rates "
@@ -160,6 +161,8 @@ function ciniki_taxes_rateList(&$ciniki) {
 		array('container'=>'rates', 'fname'=>'id', 'name'=>'rate',
 			'fields'=>array('id', 'name', 'item_percentage', 'item_amount', 'invoice_amount',
 				'flags', 'start_date', 'end_date', 'type_ids', 'types'),
+			'utctotz'=>array('start_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
+				'end_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
 			'idlists'=>array('type_ids'), 'lists'=>array('types')),
 		));
 	if( $rc['stat'] != 'ok' ) {
