@@ -30,7 +30,7 @@ function ciniki_taxes_rateGet(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'taxes', 'private', 'checkAccess');
-    $rc = ciniki_taxes_checkAccess($ciniki, $args['business_id'], 'ciniki.taxes.taxGet'); 
+    $rc = ciniki_taxes_checkAccess($ciniki, $args['business_id'], 'ciniki.taxes.rateGet'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
