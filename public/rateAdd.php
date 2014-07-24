@@ -20,6 +20,7 @@ function ciniki_taxes_rateAdd(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
 		'name'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Name'),
+		'location_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Location'),
 		'item_percentage'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Item Percentage'),
 		'item_amount'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Item Amount'),
 		'invoice_amount'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Invoice Amount'),

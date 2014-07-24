@@ -35,25 +35,25 @@ function ciniki_taxes_rateDelete(&$ciniki) {
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
+	$modules = $rc['modules'];
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
 
 	//
 	// Check if any tax types are currently using this tax rate
 	//
-	$num_invoices = 0;
-	if( isset($modules['ciniki.sapos']) ) {
-		$strsql = "SELECT 'invoices', COUNT(*) "
-			. "FROM ciniki_sapos_invoice_taxes "
-			. "WHERE rate_id = '" . ciniki_core_dbQuote($ciniki, $args['rate_id']) . "' "
-			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-			. "";
-		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'num');
-		if( $rc['stat'] != 'ok' ) {
-			return $rc;
-		}
-		if( isset($rc['num']['invoices']) && $rc['num']['invoices'] > 0 ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1378', 'msg'=>'Invoices are still using this tax rate, it cannot be deleted.'));
+	foreach($modules as $module => $m) {
+		list($pkg, $mod) = explode('.', $module);
+		$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'taxes', 'checkObjectUsed');
+		if( $rc['stat'] == 'ok' ) {
+			$fn = $rc['function_call'];
+			$rc = $fn($ciniki, $modules, $args['business_id'], 'ciniki.taxes.rate', $args['rate_id']);
+			if( $rc['stat'] != 'ok' ) {
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1837', 'msg'=>'Unable to check if tax rate is still be used', 'err'=>$rc['err']));
+			}
+			if( $rc['used'] != 'no' ) {
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1838', 'msg'=>"Tax Rate is still in use. " . $rc['msg']));
+			}
 		}
 	}
 

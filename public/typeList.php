@@ -18,6 +18,7 @@ function ciniki_taxes_typeList(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'locations'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Locations'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -36,6 +37,8 @@ function ciniki_taxes_typeList(&$ciniki) {
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'timezoneOffset');
 	$utc_offset = ciniki_businesses_timezoneOffset($ciniki);
+
+	$rsp = array('stat'=>'ok', 'active'=>array(), 'inactive'=>array());
 
 	//
 	// Get the list of active tax types, with current tax rates
@@ -68,9 +71,7 @@ function ciniki_taxes_typeList(&$ciniki) {
 		return $rc;
 	}
 	if( isset($rc['types']) ) {
-		$active = $rc['types'];
-	} else {
-		$active = array();
+		$rsp['active'] = $rc['types'];
 	}
 
 	//
@@ -103,11 +104,29 @@ function ciniki_taxes_typeList(&$ciniki) {
 		return $rc;
 	}
 	if( isset($rc['types']) ) {
-		$inactive = $rc['types'];
-	} else {
-		$inactive = array();
+		$rsp['inactive'] = $rc['types'];
 	}
 
-	return array('stat'=>'ok', 'active'=>$active, 'inactive'=>$inactive);
+	//
+	// If locations specified, get the list of known locations
+	//
+	if( isset($args['locations']) && $args['locations'] == 'yes' ) {
+		$strsql = "SELECT id, name "
+			. "FROM ciniki_tax_locations "
+			. "WHERE ciniki_tax_locations.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.taxes', array(
+			array('container'=>'locations', 'fname'=>'id', 'name'=>'location',
+				'fields'=>array('id', 'name')),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['locations']) ) {
+			$rsp['locations'] = $rc['locations'];
+		}
+	}
+
+	return $rsp;
 }
 ?>

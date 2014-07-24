@@ -12,6 +12,10 @@
 #
 # name:					The name for the tax (HST, PST, etc)
 #
+# location_id:			The location where this tax is valid.
+#						If the location_id is zero then it is the default unless there is
+#						another location_id that matches the shipping location.
+#
 # item_percentage:		The percent to charge for the tax, for each item on an invoice of the taxtype.
 #
 # item_amount:			The fixed amount to add for each item on an invoice of the taxtype. **future**
@@ -37,6 +41,7 @@ create table ciniki_tax_rates (
 	uuid char(36) not null,
 	business_id int not null,
 	name varchar(100) not null,
+	location_id int not null,
 	item_percentage decimal(19,4) not null,
 	item_amount decimal(19,4) not null,
 	invoice_amount decimal(19,4) not null,
@@ -48,4 +53,4 @@ create table ciniki_tax_rates (
 	primary key (id),
 	index (start_date, end_date),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.01';
+) ENGINE='InnoDB', COMMENT='v1.02';

@@ -22,6 +22,7 @@ function ciniki_taxes_rateUpdate(&$ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'rate_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tax Rate'), 
 		'name'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Name'),
+		'location_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Location'),
 		'item_percentage'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Item Percentage'),
 		'item_amount'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Item Amount'),
 		'invoice_amount'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Invoice Amount'),

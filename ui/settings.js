@@ -13,6 +13,7 @@ function ciniki_taxes_settings() {
 		this.menu.sections = {
 			'taxes':{'label':'Taxes', 'list':{
 				'types':{'label':'Tax Types', 'fn':'M.ciniki_taxes_settings.showTypes(\'M.ciniki_taxes_settings.showMenu();\');'}, 
+				'locations':{'label':'Tax Locations', 'visible':'no', 'fn':'M.ciniki_taxes_settings.showLocations(\'M.ciniki_taxes_settings.showMenu();\');'}, 
 				'taxes':{'label':'Tax Rates', 'fn':'M.ciniki_taxes_settings.showRates(\'M.ciniki_taxes_settings.showMenu();\');'},
 				}},
 		};
@@ -49,6 +50,35 @@ function ciniki_taxes_settings() {
 		this.taxtypes.addClose('Back');
 
 		//
+		// The locations panel
+		//
+		this.locations = new M.panel('Locations',
+			'ciniki_taxes_settings', 'taxrates',
+			'mc', 'medium', 'sectioned', 'ciniki.taxes.settings.locations');
+		this.locations.sections = {
+			'locations':{'label':'Locations', 'type':'simplegrid', 'num_cols':2,
+				'headerValues':['Location', 'Code', 'Constraints'],
+				'cellClasses':['',''],
+				'sortTypes':['text','text','text'],
+				'addTxt':'Add Location',
+				'addFn':'M.ciniki_taxes_settings.editLocation(\'M.ciniki_taxes_settings.showLocations();\',0)',
+				},
+		};
+		this.locations.sectionData = function(s) { return this.data[s]; }
+		this.locations.cellValue = function(s, i, j, d) {
+			switch (j) {
+				case 0: return d.location.name;
+				case 1: return d.location.country_code;
+				case 2: return d.location.contraints;
+			}
+		};
+		this.locations.rowFn = function(s, i, d) {
+			return 'M.ciniki_taxes_settings.editLocation(\'M.ciniki_taxes_settings.showLocations();\',\'' + d.location.id + '\');';
+		};
+		this.locations.addButton('add', 'Add', 'M.ciniki_taxes_settings.editLocation(\'M.ciniki_taxes_settings.showLocations();\',0);');
+		this.locations.addClose('Back');
+
+		//
 		// The taxes panel
 		//
 		this.taxrates = new M.panel('Taxes',
@@ -72,9 +102,17 @@ function ciniki_taxes_settings() {
 		};
 		this.taxrates.sectionData = function(s) { return this.data[s]; }
 		this.taxrates.cellValue = function(s, i, j, d) {
-			switch (j) {
-				case 0: return '<span class="maintext">' + d.rate.name + '</span><span class="subtext">' + d.rate.types;
-				case 1: return '<span class="maintext">' + d.rate.start_date + '</span><span class="subtext">' + d.rate.end_date + '</span>';
+			if( (M.curBusiness.modules['ciniki.taxes'].flags&0x01) > 0 ) {
+				switch (j) {
+					case 0: return '<span class="maintext">' + d.rate.location_name + '</span>';
+					case 1: return '<span class="maintext">' + d.rate.name + '</span><span class="subtext">' + d.rate.types + '</span>';
+					case 2: return '<span class="maintext">' + d.rate.start_date + '</span><span class="subtext">' + d.rate.end_date + '</span>';
+				}
+			} else {
+				switch (j) {
+					case 0: return '<span class="maintext">' + d.rate.name + '</span><span class="subtext">' + d.rate.types;
+					case 1: return '<span class="maintext">' + d.rate.start_date + '</span><span class="subtext">' + d.rate.end_date + '</span>';
+				}
 			}
 		};
 		this.taxrates.rowFn = function(s, i, d) {
@@ -127,6 +165,36 @@ function ciniki_taxes_settings() {
 		//
 		// The add/edit panel for tax rates
 		//
+		this.location = new M.panel('Tax Location',
+			'ciniki_taxes_settings', 'location',
+			'mc', 'medium', 'sectioned', 'ciniki.taxes.settings.location');
+		this.location.location_id = 0;
+		this.location.data = {};
+		this.location.sections = {
+			'location':{'label':'', 'fields':{
+				'name':{'label':'Name', 'type':'text'},
+				'country_code':{'label':'Country Code', 'type':'text', 'size':'small'},
+				'start_postal_zip':{'label':'Start Postal Zip', 'type':'text', 'size':'small'},
+				'end_postal_zip':{'label':'End Postal Zip', 'type':'text', 'size':'small'},
+				}},
+			'_buttons':{'label':'', 'buttons':{
+				'save':{'label':'Save', 'fn':'M.ciniki_taxes_settings.saveLocation();'},
+				'delete':{'label':'Delete', 'fn':'M.ciniki_taxes_settings.deleteLocation();'},
+				}},
+		};
+		this.location.fieldValue = function(s, i, d) {
+			if( this.data[s] != null && this.data[s][i] != null ) { return this.data[s][i]; }
+			return '';
+		};
+		this.location.fieldHistoryArgs = function(s, i) {
+			return {'method':'ciniki.taxes.history', 'args':{'business_id':M.curBusinessID,
+				'object':'ciniki.taxes.location', 'object_id':this.location_id, 'field':i}};
+		}
+		this.location.addClose('Cancel');	
+
+		//
+		// The add/edit panel for tax rates
+		//
 		this.rateedit = new M.panel('Tax Rate',
 			'ciniki_taxes_settings', 'rateedit',
 			'mc', 'medium', 'sectioned', 'ciniki.taxes.settings.rateedit');
@@ -135,6 +203,7 @@ function ciniki_taxes_settings() {
 		this.rateedit.sections = {
 			'rate':{'label':'', 'fields':{
 				'name':{'label':'Name', 'type':'text'},
+				'location_id':{'label':'Location', 'active':'no', 'type':'select', 'options':{}},
 				'item_percentage':{'label':'Item %', 'type':'text', 'size':'small'},
 				'item_amount':{'label':'Item Amount', 'type':'text', 'size':'small'},
 				'invoice_amount':{'label':'Invoice Amount', 'type':'text', 'size':'small'},
@@ -161,10 +230,6 @@ function ciniki_taxes_settings() {
 			return '';
 		};
 		this.rateedit.fieldHistoryArgs = function(s, i) {
-			if( s == 'active' || s == 'inactive' ) {
-				return {'method':'ciniki.taxes.history', 'args':{'business_id':M.curBusinessID,
-					'object':'ciniki.taxes.rate', 'object_id':this.rate_id, 'field':'type_id', 'field_value':i}};
-			}
 			return {'method':'ciniki.taxes.history', 'args':{'business_id':M.curBusinessID,
 				'object':'ciniki.taxes.rate', 'object_id':this.rate_id, 'field':i}};
 		}
@@ -191,6 +256,24 @@ function ciniki_taxes_settings() {
 			return false;
 		} 
 
+		if( (M.curBusiness.modules['ciniki.taxes'].flags&0x01) > 0 ) {
+			this.menu.sections.taxes.list.locations.visible = 'yes';
+			this.taxrates.sections.current.num_cols = 3;
+			this.taxrates.sections.current.headerValues = ['Location', 'Tax/Types','Start/End'];
+			this.taxrates.sections.future.num_cols = 3;
+			this.taxrates.sections.future.headerValues = ['Location', 'Tax/Types','Start/End'];
+			this.taxrates.sections.past.num_cols = 3;
+			this.taxrates.sections.past.headerValues = ['Location', 'Tax/Types','Start/End'];
+		} else {
+			this.menu.sections.taxes.list.locations.visible = 'no';
+			this.taxrates.sections.current.num_cols = 2;
+			this.taxrates.sections.current.headerValues = ['Tax/Types','Start/End'];
+			this.taxrates.sections.future.num_cols = 2;
+			this.taxrates.sections.future.headerValues = ['Tax/Types','Start/End'];
+			this.taxrates.sections.past.num_cols = 2;
+			this.taxrates.sections.past.headerValues = ['Tax/Types','Start/End'];
+		}
+
 		this.showMenu(cb);
 	};
 
@@ -215,6 +298,19 @@ function ciniki_taxes_settings() {
 			} else {
 				p.sections.inactive.visible = 'no';
 			}
+			p.refresh();
+			p.show(cb);
+		});
+	};
+
+	this.showLocations = function(cb) {
+		M.api.getJSONCb('ciniki.taxes.locationList', {'business_id':M.curBusinessID}, function(rsp) {
+			if( rsp.stat != 'ok' ) {
+				M.api.err(rsp);
+				return false;
+			}
+			var p = M.ciniki_taxes_settings.locations;
+			p.data = {'locations':rsp.locations};
 			p.refresh();
 			p.show(cb);
 		});
@@ -341,7 +437,7 @@ function ciniki_taxes_settings() {
 	};
 
 	this.deleteType = function() {
-		if( confirm("Are you sure you want to the tax type '" + this.typeedit.data.type.name + "'?") ) {
+		if( confirm("Are you sure you want to delete this tax type?") ) {
 			var rsp = M.api.getJSONCb('ciniki.taxes.typeDelete', {'business_id':M.curBusinessID, 
 				'type_id':M.ciniki_taxes_settings.typeedit.type_id}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
@@ -353,22 +449,93 @@ function ciniki_taxes_settings() {
 		}
 	};
 
+	this.editLocation = function(cb, lid) {
+		if( lid != null ) { this.location.location_id = lid; }
+		this.location.reset();
+		this.location.data = {};
+		if( this.location.location_id > 0 ) {
+			this.location.sections._buttons.buttons.delete.visible = 'yes';
+			M.api.getJSONCb('ciniki.taxes.locationGet', {'business_id':M.curBusinessID,
+				'location_id':p.location_id}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					var p = M.ciniki_taxes_settings.location;
+					p.data.location = rsp.location;
+					p.refresh();
+					p.show(cb);
+				});
+		} else {
+			this.location.data.location = {};
+			this.location.sections._buttons.buttons.delete.visible = 'no';
+			this.location.refresh();
+			this.location.show(cb);
+		}
+	};
+
+	this.saveLocation = function() {
+		if( this.location.location_id > 0 ) {
+			var c = this.location.serializeForm('no');
+			if( c != '' ) {
+				M.api.postJSONCb('ciniki.taxes.locationUpdate', {'business_id':M.curBusinessID,
+					'location_id':this.location.location_id}, c, function(rsp) {
+						if( rsp.stat != 'ok' ) {
+							M.api.err(rsp);
+							return false;
+						}
+						M.ciniki_taxes_settings.location.close();
+					});
+			} else {
+				this.location.close();
+			}
+		} else {
+			var c = this.location.serializeForm('yes');
+			M.api.postJSONCb('ciniki.taxes.locationAdd', {'business_id':M.curBusinessID}, c, function(rsp) {
+				if( rsp.stat != 'ok' ) {
+					M.api.err(rsp);
+					return false;
+				}
+				M.ciniki_taxes_settings.location.close();
+			});
+		}
+	};
+
+	this.deleteLocation = function() {
+		if( confirm("Are you sure you want to delete this tax location?") ) {
+			var rsp = M.api.getJSONCb('ciniki.taxes.locationDelete', {'business_id':M.curBusinessID, 
+				'location_id':M.ciniki_taxes_settings.location.location_id}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_taxes_settings.location.close();
+				});
+		}
+	};
+
 	this.editRate = function(cb, rid) {
 		this.rateedit.reset();
 		this.rateedit.data = {};
 		if( rid != null ) { this.rateedit.rate_id = rid; }
-		M.api.getJSONCb('ciniki.taxes.typeList', {'business_id':M.curBusinessID}, function(rsp) {
+		M.api.getJSONCb('ciniki.taxes.typeList', {'business_id':M.curBusinessID, 'locations':((M.curBusiness.modules['ciniki.taxes'].flags&0x01)>0?'yes':'no')}, function(rsp) {
 			if( rsp.stat != 'ok' ) {
 				M.api.err(rsp);
 				return false;
 			}
 			var p = M.ciniki_taxes_settings.rateedit;
+			if( (M.curBusiness.modules['ciniki.taxes'].flags&0x01) > 0 ) {
+				p.sections.rate.fields.location_id.options = {};
+				for(j in rsp.locations) {
+					p.sections.rate.fields.location_id.options[rsp.locations[i].location.id] = rsp.locations[i].location.name;
+				}
+				p.data.locations = rsp.locations;
+			}
 			var sections = ['active','inactive'];
 			for(i in sections) {
 				var s = sections[i];
 				p.data[s] = {};
 				for(j in rsp[s]) {
-//					p.data[s][rsp[s][j].type.id] = rsp[s][j];
 					p.sections[s].fields[rsp[s][j].type.id] = {
 						'label':rsp[s][j].type.name,
 						'type':'toggle', 'default':'no', 'toggles':M.ciniki_taxes_settings.toggleOptions,
@@ -450,7 +617,7 @@ function ciniki_taxes_settings() {
 	};
 
 	this.deleteRate = function() {
-		if( confirm("Are you sure you want to the tax rate '" + this.rateedit.data.rate.name + "'?") ) {
+		if( confirm("Are you sure you want to delete this tax rate?") ) {
 			var rsp = M.api.getJSONCb('ciniki.taxes.rateDelete', {'business_id':M.curBusinessID, 
 				'rate_id':M.ciniki_taxes_settings.rateedit.rate_id}, function(rsp) {
 					if( rsp.stat != 'ok' ) {

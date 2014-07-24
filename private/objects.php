@@ -27,12 +27,25 @@ function ciniki_taxes_objects($ciniki) {
 		'table'=>'ciniki_tax_rates',
 		'fields'=>array(
 			'name'=>array(),
+			'location_id'=>array('ref'=>'ciniki.taxes.location'),
 			'item_percentage'=>array(),
 			'item_amount'=>array(),
 			'invoice_amount'=>array(),
 			'flags'=>array(),
 			'start_date'=>array(),
 			'end_date'=>array(),
+			),
+		'history_table'=>'ciniki_tax_history',
+		);
+	$objects['location'] = array(
+		'name'=>'Tax Location',
+		'sync'=>'yes',
+		'table'=>'ciniki_tax_locations',
+		'fields'=>array(
+			'name'=>array(),
+			'country_code'=>array(),
+			'start_postal_zip'=>array(),
+			'end_postal_zip'=>array(),
 			),
 		'history_table'=>'ciniki_tax_history',
 		);

@@ -35,14 +35,26 @@ function ciniki_taxes_typeDelete(&$ciniki) {
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
+	$modules = $rc['modules'];
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
 
 	//
-	// Check if any tax types are currently using this tax type
+	// Check if any modules are currently using this tax type
 	//
-	$num_invoices = 0;
-	if( isset($modules['ciniki.products']) ) {
+	foreach($modules as $module => $m) {
+		list($pkg, $mod) = explode('.', $module);
+		$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'taxes', 'checkObjectUsed');
+		if( $rc['stat'] == 'ok' ) {
+			$fn = $rc['function_call'];
+			$rc = $fn($ciniki, $modules, $args['business_id'], 'ciniki.taxes.type', $args['type_id']);
+			if( $rc['stat'] != 'ok' ) {
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1835', 'msg'=>'Unable to check if type is still be used', 'err'=>$rc['err']));
+			}
+			if( $rc['used'] != 'no' ) {
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1836', 'msg'=>"Tax Type is still in use. " . $rc['msg']));
+			}
+		}
 	}
 
 	//
@@ -65,6 +77,7 @@ function ciniki_taxes_typeDelete(&$ciniki) {
 	//
 	// Check if any invoices are currently using this tax rate
 	//
+
 	$strsql = "SELECT 'types', COUNT(*) "
 		. "FROM ciniki_tax_type_rates "
 		. "WHERE ciniki_tax_type_rates.type_id = '" . ciniki_core_dbQuote($ciniki, $args['type_id']) . "' "

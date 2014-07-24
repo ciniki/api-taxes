@@ -11,6 +11,8 @@
 # 
 # type_id:				The Tax type the tax rate applies to.
 #
+# location_id:			The location where the tax is applicable.
+#
 # rate_id:				The tax rate to apply to the tax type.
 #
 # date_added:			The UTC date and time the invoice was added.
