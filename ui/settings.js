@@ -39,9 +39,16 @@ function ciniki_taxes_settings() {
 		};
 		this.taxtypes.sectionData = function(s) { return this.data[s]; }
 		this.taxtypes.cellValue = function(s, i, j, d) {
-			switch (j) {
-				case 0: return d.type.name;
-				case 1: return d.type.rates;
+			if( j == 0 ) { return d.type.name; }
+			if( j == 1 ) {
+				if( d.type.rates != null ) {
+					var txt = '';
+					for(i in d.type.rates) {
+						txt += d.type.rates[i].rate.location + (d.type.rates[i].rate.location!=''?' - ':'') + d.type.rates[i].rate.name + '<br/>';
+					}
+					return txt;
+				}
+				return '';
 			}
 		};
 		this.taxtypes.rowFn = function(s, i, d) {
@@ -362,7 +369,7 @@ function ciniki_taxes_settings() {
 				p.sections[s].fields = {};
 				for(j in rsp[s]) {
 					p.sections[s].fields[rsp[s][j].rate.id] = {
-						'label':rsp[s][j].rate.name 
+						'label':((rsp[s][j].rate.location_name!=null&&rsp[s][j].rate.location_name!='')?rsp[s][j].rate.location_name+' - ':'')+rsp[s][j].rate.name 
 							+ ' [' + rsp[s][j].rate.start_date 
 							+ ' - ' + rsp[s][j].rate.end_date + ']',
 						'type':'toggle', 'default':'no', 'toggles':M.ciniki_taxes_settings.toggleOptions,
