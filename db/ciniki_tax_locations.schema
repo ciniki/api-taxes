@@ -11,6 +11,8 @@
 #
 # name:					The name for the location.
 #
+# code:					The code for the location, used by remote systems to sync.
+#
 # country_code:			The 2 digit country code, blank for default.
 #
 #						CA - Canada
@@ -27,6 +29,7 @@ create table ciniki_tax_locations (
 	uuid char(36) not null,
 	business_id int not null,
 	name varchar(100) not null,
+	code varchar(50) not null,
 	country_code varchar(3) not null,
 	start_postal_zip varchar(10) not null,
 	end_postal_zip varchar(10) not null,

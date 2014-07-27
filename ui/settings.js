@@ -53,11 +53,11 @@ function ciniki_taxes_settings() {
 		// The locations panel
 		//
 		this.locations = new M.panel('Locations',
-			'ciniki_taxes_settings', 'taxrates',
+			'ciniki_taxes_settings', 'locations',
 			'mc', 'medium', 'sectioned', 'ciniki.taxes.settings.locations');
 		this.locations.sections = {
 			'locations':{'label':'Locations', 'type':'simplegrid', 'num_cols':2,
-				'headerValues':['Location', 'Code', 'Constraints'],
+				'headerValues':['Location', 'Country', 'Constraints'],
 				'cellClasses':['',''],
 				'sortTypes':['text','text','text'],
 				'addTxt':'Add Location',
@@ -67,6 +67,7 @@ function ciniki_taxes_settings() {
 		this.locations.sectionData = function(s) { return this.data[s]; }
 		this.locations.cellValue = function(s, i, j, d) {
 			switch (j) {
+//				case 0: return ((d.location.code!=null&&d.location.code!='')?d.location.code+' - ':'') + d.location.name;
 				case 0: return d.location.name;
 				case 1: return d.location.country_code;
 				case 2: return d.location.contraints;
@@ -173,6 +174,7 @@ function ciniki_taxes_settings() {
 		this.location.sections = {
 			'location':{'label':'', 'fields':{
 				'name':{'label':'Name', 'type':'text'},
+				'code':{'label':'Code', 'type':'text'},
 				'country_code':{'label':'Country Code', 'type':'text', 'size':'small'},
 				'start_postal_zip':{'label':'Start Postal Zip', 'type':'text', 'size':'small'},
 				'end_postal_zip':{'label':'End Postal Zip', 'type':'text', 'size':'small'},
@@ -242,9 +244,7 @@ function ciniki_taxes_settings() {
 	//
 	this.start = function(cb, appPrefix, aG) {
 		args = {};
-		if( aG != null ) {
-			args = eval(aG);
-		}
+		if( aG != null ) { args = eval(aG); }
 
 		//
 		// Create the app container if it doesn't exist, and clear it out
@@ -264,6 +264,11 @@ function ciniki_taxes_settings() {
 			this.taxrates.sections.future.headerValues = ['Location', 'Tax/Types','Start/End'];
 			this.taxrates.sections.past.num_cols = 3;
 			this.taxrates.sections.past.headerValues = ['Location', 'Tax/Types','Start/End'];
+			if( (M.curBusiness.modules['ciniki.taxes'].flags&0x02) > 0 ) {
+				this.location.sections.location.fields.code.active = 'yes';
+			} else {
+				this.location.sections.location.fields.code.active = 'no';
+			}
 		} else {
 			this.menu.sections.taxes.list.locations.visible = 'no';
 			this.taxrates.sections.current.num_cols = 2;
@@ -272,6 +277,7 @@ function ciniki_taxes_settings() {
 			this.taxrates.sections.future.headerValues = ['Tax/Types','Start/End'];
 			this.taxrates.sections.past.num_cols = 2;
 			this.taxrates.sections.past.headerValues = ['Tax/Types','Start/End'];
+			this.location.sections.location.fields.code.active = 'no';
 		}
 
 		this.showMenu(cb);
@@ -353,6 +359,7 @@ function ciniki_taxes_settings() {
 			for(i in sections) {
 				var s = sections[i];
 				p.data[s] = {};
+				p.sections[s].fields = {};
 				for(j in rsp[s]) {
 					p.sections[s].fields[rsp[s][j].rate.id] = {
 						'label':rsp[s][j].rate.name 
@@ -456,7 +463,7 @@ function ciniki_taxes_settings() {
 		if( this.location.location_id > 0 ) {
 			this.location.sections._buttons.buttons.delete.visible = 'yes';
 			M.api.getJSONCb('ciniki.taxes.locationGet', {'business_id':M.curBusinessID,
-				'location_id':p.location_id}, function(rsp) {
+				'location_id':this.location.location_id}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
 						M.api.err(rsp);
 						return false;
@@ -524,16 +531,22 @@ function ciniki_taxes_settings() {
 				return false;
 			}
 			var p = M.ciniki_taxes_settings.rateedit;
+			p.sections.rate.fields.location_id.options = {};
 			if( (M.curBusiness.modules['ciniki.taxes'].flags&0x01) > 0 ) {
-				p.sections.rate.fields.location_id.options = {};
-				for(j in rsp.locations) {
-					p.sections.rate.fields.location_id.options[rsp.locations[i].location.id] = rsp.locations[i].location.name;
+				if( rsp.locations != null ) {
+					for(i in rsp.locations) {
+						p.sections.rate.fields.location_id.options[rsp.locations[i].location.id] = rsp.locations[i].location.name;
+					}
+				} else {
+					p.sections.rate.fields.location_id.active = 'yes';
 				}
-				p.data.locations = rsp.locations;
+			} else {
+				p.sections.rate.fields.location_id.active = 'no';
 			}
 			var sections = ['active','inactive'];
 			for(i in sections) {
 				var s = sections[i];
+				p.sections[s].fields = {};
 				p.data[s] = {};
 				for(j in rsp[s]) {
 					p.sections[s].fields[rsp[s][j].type.id] = {

@@ -40,22 +40,20 @@ function ciniki_taxes_locationDelete(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
 
 	//
-	// Check if any tax types are currently using this tax location
+	// Check if any modules are currently using this tax type
 	//
-	// FIXME: Convert to check all modules <mod>/taxes/locationUsed.php, which will check if location is still being used by any records.
-	$num_invoices = 0;
-	if( isset($modules['ciniki.sapos']) ) {
-		$strsql = "SELECT 'invoices', COUNT(*) "
-			. "FROM ciniki_sapos_invoice_taxes "
-			. "WHERE location_id = '" . ciniki_core_dbQuote($ciniki, $args['location_id']) . "' "
-			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-			. "";
-		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'num');
-		if( $rc['stat'] != 'ok' ) {
-			return $rc;
-		}
-		if( isset($rc['num']['invoices']) && $rc['num']['invoices'] > 0 ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1804', 'msg'=>'Invoices are still using this tax location, it cannot be deleted.'));
+	foreach($modules as $module => $m) {
+		list($pkg, $mod) = explode('.', $module);
+		$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'taxes', 'checkObjectUsed');
+		if( $rc['stat'] == 'ok' ) {
+			$fn = $rc['function_call'];
+			$rc = $fn($ciniki, $modules, $args['business_id'], 'ciniki.taxes.location', $args['location_id']);
+			if( $rc['stat'] != 'ok' ) {
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1835', 'msg'=>'Unable to check if type is still be used', 'err'=>$rc['err']));
+			}
+			if( $rc['used'] != 'no' ) {
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1836', 'msg'=>"Tax location is still in use. " . $rc['msg']));
+			}
 		}
 	}
 

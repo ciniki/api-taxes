@@ -19,6 +19,7 @@ function ciniki_taxes_rateGet(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'rate_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tax Rate'), 
+        'locations'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Locations'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -34,6 +35,7 @@ function ciniki_taxes_rateGet(&$ciniki) {
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
+	$modules = $rc['modules'];
 
 //	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'timezoneOffset');
 //	$utc_offset = ciniki_businesses_timezoneOffset($ciniki);
@@ -52,6 +54,7 @@ function ciniki_taxes_rateGet(&$ciniki) {
 	// Get the details about a tax
 	//
 	$strsql = "SELECT ciniki_tax_rates.id, ciniki_tax_rates.name, "
+		. "ciniki_tax_rates.location_id, "
 		. "ciniki_tax_rates.item_percentage, ciniki_tax_rates.item_amount, ciniki_tax_rates.invoice_amount, "
 		. "ciniki_tax_rates.flags, "
 		. "ciniki_tax_rates.start_date, "
@@ -67,7 +70,7 @@ function ciniki_taxes_rateGet(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.taxes', array(
 		array('container'=>'rates', 'fname'=>'id', 'name'=>'rate',
-			'fields'=>array('id', 'name', 'item_percentage', 'item_amount', 'invoice_amount',
+			'fields'=>array('id', 'name', 'location_id', 'item_percentage', 'item_amount', 'invoice_amount',
 				'flags', 'start_date', 'end_date', 'type_ids'),
 			'utctotz'=>array('start_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),
 				'end_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)),
@@ -79,8 +82,33 @@ function ciniki_taxes_rateGet(&$ciniki) {
 	if( !isset($rc['rates']) || !isset($rc['rates'][0]['rate']) ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1394', 'msg'=>'Unable to find the tax rate'));
 	}
-	$rate = $rc['rates'][0]['rate'];
+	$rsp = array('stat'=>'ok', 'rate'=>$rc['rates'][0]['rate']);
 
-	return array('stat'=>'ok', 'rate'=>$rate);
+	//
+	// Get the available locations
+	//
+	if( ($modules['ciniki.taxes']['flags']&0x02) > 0 
+		&& isset($args['locations']) && $args['locations'] == 'yes' 
+		) {
+		$strsql = "SELECT id, code, name "
+			. "FROM ciniki_tax_locations "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "ORDER BY code, name "
+			. "";
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.taxes', array(
+			array('container'=>'locations', 'fname'=>'id', 'name'=>'location',
+				'fields'=>array('id', 'code', 'name')),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['locations']) ) {
+			$rsp['locations'] = $rc['locations'];
+		} else {
+			$rsp['locations'] = array();
+		}
+	}
+
+	return $rsp;
 }
 ?>

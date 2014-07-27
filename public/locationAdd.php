@@ -20,9 +20,10 @@ function ciniki_taxes_locationAdd(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
 		'name'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Name'),
-		'country_code'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Country Code'),
-		'start_postal_zip'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Start Range Postal/Zip Code'),
-		'end_postal_zip'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'End Range Postal/Zip Code'),
+		'code'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Code'),
+		'country_code'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Country Code'),
+		'start_postal_zip'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Start Range Postal/Zip Code'),
+		'end_postal_zip'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'End Range Postal/Zip Code'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;

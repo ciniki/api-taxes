@@ -111,19 +111,21 @@ function ciniki_taxes_typeList(&$ciniki) {
 	// If locations specified, get the list of known locations
 	//
 	if( isset($args['locations']) && $args['locations'] == 'yes' ) {
-		$strsql = "SELECT id, name "
+		$strsql = "SELECT id, code, name "
 			. "FROM ciniki_tax_locations "
 			. "WHERE ciniki_tax_locations.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "";
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.taxes', array(
 			array('container'=>'locations', 'fname'=>'id', 'name'=>'location',
-				'fields'=>array('id', 'name')),
+				'fields'=>array('id', 'code', 'name')),
 			));
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}
 		if( isset($rc['locations']) ) {
 			$rsp['locations'] = $rc['locations'];
+		} else {
+			$rsp['locations'] = array();
 		}
 	}
 

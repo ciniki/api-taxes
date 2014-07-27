@@ -50,17 +50,18 @@ function ciniki_taxes_locationList(&$ciniki) {
 	//
 	$strsql = "SELECT ciniki_tax_locations.id, "
 		. "ciniki_tax_locations.name, "
+		. "ciniki_tax_locations.code, "
 		. "ciniki_tax_locations.country_code, "
 		. "ciniki_tax_locations.start_postal_zip, "
 		. "ciniki_tax_locations.end_postal_zip "
 		. "FROM ciniki_tax_locations "
 		. "WHERE ciniki_tax_locations.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "ORDER BY ciniki_tax_locations.name "
+		. "ORDER BY ciniki_tax_locations.code, ciniki_tax_locations.name "
 		. "";
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.taxes', array(
 		array('container'=>'locations', 'fname'=>'id', 'name'=>'location',
-			'fields'=>array('id', 'name', 'country_code', 'start_postal_zip', 'end_postal_zip')),
+			'fields'=>array('id', 'name', 'code', 'country_code', 'start_postal_zip', 'end_postal_zip')),
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;

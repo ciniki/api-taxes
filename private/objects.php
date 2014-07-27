@@ -43,6 +43,7 @@ function ciniki_taxes_objects($ciniki) {
 		'table'=>'ciniki_tax_locations',
 		'fields'=>array(
 			'name'=>array(),
+			'code'=>array(),
 			'country_code'=>array(),
 			'start_postal_zip'=>array(),
 			'end_postal_zip'=>array(),
