@@ -541,11 +541,12 @@ function ciniki_taxes_settings() {
 			p.sections.rate.fields.location_id.options = {};
 			if( (M.curBusiness.modules['ciniki.taxes'].flags&0x01) > 0 ) {
 				if( rsp.locations != null ) {
+					p.sections.rate.fields.location_id.active = 'yes';
 					for(i in rsp.locations) {
 						p.sections.rate.fields.location_id.options[rsp.locations[i].location.id] = rsp.locations[i].location.name;
 					}
 				} else {
-					p.sections.rate.fields.location_id.active = 'yes';
+					p.sections.rate.fields.location_id.active = 'no';
 				}
 			} else {
 				p.sections.rate.fields.location_id.active = 'no';
