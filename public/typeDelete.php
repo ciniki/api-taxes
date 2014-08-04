@@ -39,9 +39,15 @@ function ciniki_taxes_typeDelete(&$ciniki) {
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
 
+//	$rc = ciniki_core_hookExec($ciniki, $args['business_id'], 'ciniki', 'taxes', 'checkObjectused', array(
+//		'object'=>'ciniki.taxes.type', 
+//		'object_id'=>$args['type_id'],
+//		));
+
 	//
 	// Check if any modules are currently using this tax type
 	//
+	// FIXME: Convert to hooks dir
 	foreach($modules as $module => $m) {
 		list($pkg, $mod) = explode('.', $module);
 		$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'taxes', 'checkObjectUsed');
