@@ -22,10 +22,30 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
 	}
 
 	//
+	// If locations is enabled, then decide if taxes should be calculated yet or not
+	// If tax locations are not enabled, then all tax_location_ids will be zero.
+	//
+	$tax_location_id = 0; // Default to zero, or if no tax locations are being used
+	if( isset($ciniki['business']['modules']['ciniki.taxes']['flags']) 
+		&& ($ciniki['business']['modules']['ciniki.taxes']['flags']&0x01) > 0 ) {
+		//
+		// Check if customer is specified, and if they have a location
+		//
+		if( isset($invoice['tax_location_id']) && $invoice['tax_location_id'] > 0 ) {
+			$tax_location_id = $invoice['tax_location_id'];
+		} else {
+			//
+			// If we don't have customer or shipping address then can't calculate taxes yet
+			//
+			return array('stat'=>'ok', 'taxes'=>array());
+		}
+	}
+
+	//
 	// Get the taxes for a business, that are for the time period the invoice is in.
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'taxes', 'private', 'ratesForDate');
-	$rc = ciniki_taxes_ratesForDate($ciniki, $business_id, $invoice['date']);
+	$rc = ciniki_taxes_ratesForDate($ciniki, $business_id, $invoice['date'], $tax_location_id);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
@@ -51,7 +71,9 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
 			// Check if the tax should be applied
 			//
 			if( isset($tax['types']) && is_array($tax['types']) 
-				&& array_key_exists($item['taxtype_id'], $tax['types']) ) {
+				&& array_key_exists($item['taxtype_id'], $tax['types']) 
+				&& $tax['location_id'] == $tax_location_id	// Double check tax_location_id
+				) {
 				if( $tax['item_percentage'] > 0 ) {
 					$item_amount = bcmul($item['amount'], bcdiv($tax['item_percentage'], 100, 6), 4);
 					$business_taxes[$tid]['calculated_items_amount'] = 
