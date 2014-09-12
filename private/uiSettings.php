@@ -53,7 +53,9 @@ function ciniki_taxes_uiSettings($ciniki, $modules, $business_id) {
 	// Get the list of tax locations if that is enabled
 	//
 	if( ($modules['ciniki.taxes']['flags']&0x01) > 0 ) {
-		$strsql = "SELECT ciniki_tax_locations.id, ciniki_tax_locations.name, "
+		$strsql = "SELECT ciniki_tax_locations.id, "
+			. "ciniki_tax_locations.code, "
+			. "ciniki_tax_locations.name, "
 			. "ciniki_tax_locations.country_code, "
 			. "ciniki_tax_locations.start_postal_zip, "
 			. "ciniki_tax_locations.end_postal_zip, "
@@ -67,7 +69,7 @@ function ciniki_taxes_uiSettings($ciniki, $modules, $business_id) {
 			. "";
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.taxes', array(
 			array('container'=>'locations', 'fname'=>'id', 'name'=>'location',
-				'fields'=>array('id', 'name', 'country_code', 'start_postal_zip', 'end_postal_zip', 'rates'),
+				'fields'=>array('id', 'code', 'name', 'country_code', 'start_postal_zip', 'end_postal_zip', 'rates'),
 				'lists'=>array('rates')),
 			));
 		if( $rc['stat'] != 'ok' ) {
