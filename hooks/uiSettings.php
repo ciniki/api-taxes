@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_taxes_uiSettings($ciniki, $modules, $business_id) {
+function ciniki_taxes_hooks_uiSettings($ciniki, $business_id, $args) {
 	//
 	// Get the list of tax types, both active and inactive.  This is used
 	// but other modules, and inactive are required incase it's an old setting.
@@ -52,7 +52,7 @@ function ciniki_taxes_uiSettings($ciniki, $modules, $business_id) {
 	//
 	// Get the list of tax locations if that is enabled
 	//
-	if( ($modules['ciniki.taxes']['flags']&0x01) > 0 ) {
+	if( ($args['modules']['ciniki.taxes']['flags']&0x01) > 0 ) {
 		$strsql = "SELECT ciniki_tax_locations.id, "
 			. "ciniki_tax_locations.code, "
 			. "ciniki_tax_locations.name, "
