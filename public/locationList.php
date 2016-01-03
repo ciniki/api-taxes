@@ -69,10 +69,10 @@ function ciniki_taxes_locationList(&$ciniki) {
 	if( isset($rc['locations']) ) {
 		$locations = $rc['locations'];
 		foreach($locations as $lid => $location) {
-			$locations[$lid]['location']['contraints'] = $location['location']['start_postal_zip'];
+			$locations[$lid]['location']['constraints'] = $location['location']['start_postal_zip'];
 			if( $location['location']['end_postal_zip'] != '' 
 				&& $location['location']['start_postal_zip'] != $location['location']['end_postal_zip'] ) {
-				$locations[$lid]['location']['contraints'] .= ' - ' . $location['location']['end_postal_zip'];
+				$locations[$lid]['location']['constraints'] .= ' - ' . $location['location']['end_postal_zip'];
 			}
 		}
 	} else {

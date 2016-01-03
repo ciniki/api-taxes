@@ -63,10 +63,11 @@ function ciniki_taxes_settings() {
 			'ciniki_taxes_settings', 'locations',
 			'mc', 'medium', 'sectioned', 'ciniki.taxes.settings.locations');
 		this.locations.sections = {
-			'locations':{'label':'Locations', 'type':'simplegrid', 'num_cols':2,
+			'locations':{'label':'Locations', 'type':'simplegrid', 'num_cols':3,
 				'headerValues':['Location', 'Country', 'Constraints'],
 				'cellClasses':['',''],
-				'sortTypes':['text','text','text'],
+                'sortable':'yes',
+				'sortTypes':['text','text','text','text'],
 				'addTxt':'Add Location',
 				'addFn':'M.ciniki_taxes_settings.editLocation(\'M.ciniki_taxes_settings.showLocations();\',0)',
 				},
@@ -74,10 +75,10 @@ function ciniki_taxes_settings() {
 		this.locations.sectionData = function(s) { return this.data[s]; }
 		this.locations.cellValue = function(s, i, j, d) {
 			switch (j) {
-//				case 0: return ((d.location.code!=null&&d.location.code!='')?d.location.code+' - ':'') + d.location.name;
-				case 0: return d.location.name;
+				case 0: return ((d.location.code!=null&&d.location.code!='')?d.location.code+' - ':'') + d.location.name;
+//				case 0: return d.location.name;
 				case 1: return d.location.country_code;
-				case 2: return d.location.contraints;
+				case 2: return d.location.constraints;
 			}
 		};
 		this.locations.rowFn = function(s, i, d) {
@@ -96,6 +97,8 @@ function ciniki_taxes_settings() {
 			'current':{'label':'Current Taxes', 'type':'simplegrid', 'num_cols':2,
 				'headerValues':['Tax/types', 'Start/End'],
 				'cellClasses':['multiline','multiline'],
+                'sortable':'yes',
+                'sortTypes':['text', 'text', 'date'],
 				'addTxt':'Add Tax',
 				'addFn':'M.ciniki_taxes_settings.editRate(\'M.ciniki_taxes_settings.showRates();\',0)',
 				},
