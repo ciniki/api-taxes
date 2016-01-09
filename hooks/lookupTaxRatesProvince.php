@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_taxes_hooks_lookupTaxRates($ciniki, $business_id, $args) {
+function ciniki_taxes_hooks_lookupTaxRatesProvince($ciniki, $business_id, $args) {
 
     //
     // Check country is passed
