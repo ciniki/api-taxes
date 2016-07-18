@@ -63,13 +63,13 @@ function ciniki_taxes_hooks_lookupTaxRatesProvince($ciniki, $business_id, $args)
         array('container'=>'rates', 'fname'=>'id', 
             'fields'=>array('id', 'name', 'location_id', 'item_percentage', 'item_amount', 'invoice_amount', 'flags')),
         ));
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
     if( isset($rc['rates']) ) {
         return array('stat'=>'ok', 'rates'=>$rc['rates']);
     }
 
-	return array('stat'=>'ok', 'rates'=>array());
+    return array('stat'=>'ok', 'rates'=>array());
 }
 ?>

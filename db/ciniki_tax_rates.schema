@@ -6,51 +6,51 @@
 #
 # Fields
 # ------
-# id:					The tax ID.
-# uuid:					The Universal Unique ID for the invoice.
-# business_id:			The business the invoice is for.
+# id:                   The tax ID.
+# uuid:                 The Universal Unique ID for the invoice.
+# business_id:          The business the invoice is for.
 #
-# name:					The name for the tax (HST, PST, etc)
+# name:                 The name for the tax (HST, PST, etc)
 #
-# location_id:			The location where this tax is valid.
-#						If the location_id is zero then it is the default unless there is
-#						another location_id that matches the shipping location.
+# location_id:          The location where this tax is valid.
+#                       If the location_id is zero then it is the default unless there is
+#                       another location_id that matches the shipping location.
 #
-# item_percentage:		The percent to charge for the tax, for each item on an invoice of the taxtype.
+# item_percentage:      The percent to charge for the tax, for each item on an invoice of the taxtype.
 #
-# item_amount:			The fixed amount to add for each item on an invoice of the taxtype. **future**
+# item_amount:          The fixed amount to add for each item on an invoice of the taxtype. **future**
 #
-# invoice_amount:		The fixed amount to add to the invoice once.  There must be one item on the invoice
-#						with this taxtype to trigger the addition. **future**
+# invoice_amount:       The fixed amount to add to the invoice once.  There must be one item on the invoice
+#                       with this taxtype to trigger the addition. **future**
 #
-# flags:				Options for the tax. **future**
+# flags:                Options for the tax. **future**
 #
-# start_date:			The UTC date and time the tax is valid from.  This is used when new taxes
-#						are introduced and become effective on a particular date and time.
-#						The start_date MUST be specified.
+# start_date:           The UTC date and time the tax is valid from.  This is used when new taxes
+#                       are introduced and become effective on a particular date and time.
+#                       The start_date MUST be specified.
 #
-# end_date:				The UTC date and time the tax is valid to.  Similar to start_date, this defines
-#						when a tax will no long be valid and calculated on orders.
-#						The end_date can be empty (0000-00-00 00:00:00) if no end is specified.
+# end_date:             The UTC date and time the tax is valid to.  Similar to start_date, this defines
+#                       when a tax will no long be valid and calculated on orders.
+#                       The end_date can be empty (0000-00-00 00:00:00) if no end is specified.
 #
-# date_added:			The UTC date and time the invoice was added.
-# last_updated:			The UTC date and time the invoice was last updated.
+# date_added:           The UTC date and time the invoice was added.
+# last_updated:         The UTC date and time the invoice was last updated.
 #
 create table ciniki_tax_rates (
-	id int not null auto_increment,
-	uuid char(36) not null,
-	business_id int not null,
-	name varchar(100) not null,
-	location_id int not null,
-	item_percentage decimal(19,4) not null,
-	item_amount decimal(19,4) not null,
-	invoice_amount decimal(19,4) not null,
-	flags tinyint not null,
-	start_date datetime not null,
-	end_date datetime not null,
-	date_added datetime not null,
-	last_updated datetime not null,
-	primary key (id),
-	index (start_date, end_date),
-	index sync (uuid, business_id, last_updated)
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    name varchar(100) not null,
+    location_id int not null,
+    item_percentage decimal(19,4) not null,
+    item_amount decimal(19,4) not null,
+    invoice_amount decimal(19,4) not null,
+    flags tinyint not null,
+    start_date datetime not null,
+    end_date datetime not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    index (start_date, end_date),
+    index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.02';

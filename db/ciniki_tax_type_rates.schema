@@ -5,28 +5,28 @@
 #
 # Fields
 # ------
-# id:					The tax ID.
-# uuid:					The Universal Unique ID for the invoice.
-# business_id:			The business the invoice is for.
+# id:                   The tax ID.
+# uuid:                 The Universal Unique ID for the invoice.
+# business_id:          The business the invoice is for.
 # 
-# type_id:				The Tax type the tax rate applies to.
+# type_id:              The Tax type the tax rate applies to.
 #
-# location_id:			The location where the tax is applicable.
+# location_id:          The location where the tax is applicable.
 #
-# rate_id:				The tax rate to apply to the tax type.
+# rate_id:              The tax rate to apply to the tax type.
 #
-# date_added:			The UTC date and time the invoice was added.
-# last_updated:			The UTC date and time the invoice was last updated.
+# date_added:           The UTC date and time the invoice was added.
+# last_updated:         The UTC date and time the invoice was last updated.
 #
 create table ciniki_tax_type_rates (
-	id int not null auto_increment,
-	uuid char(36) not null,
-	business_id int not null,
-	type_id int not null,
-	rate_id int not null,
-	date_added datetime not null,
-	last_updated datetime not null,
-	primary key (id),
-	unique index (type_id, rate_id),
-	index sync (uuid, business_id, last_updated)
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    type_id int not null,
+    rate_id int not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (type_id, rate_id),
+    index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';
