@@ -11,11 +11,13 @@
 // -------
 //
 function ciniki_taxes_hooks_uiSettings($ciniki, $business_id, $args) {
+
+    $rsp = array('stat'=>'ok', 'settings'=>array(), 'settings_menu_items'=>array());
+
     //
     // Get the list of tax types, both active and inactive.  This is used
     // but other modules, and inactive are required incase it's an old setting.
     //
-    $settings = array();
     $strsql = "SELECT ciniki_tax_types.id, "
         . "ciniki_tax_types.name, "
         . "IF((ciniki_tax_types.flags&0x01)=1, 'inactive', 'active') AS active, "
@@ -44,9 +46,9 @@ function ciniki_taxes_hooks_uiSettings($ciniki, $business_id, $args) {
         return $rc;
     }
     if( isset($rc['types']) ) {
-        $settings['types'] = $rc['types'];
+        $rsp['settings']['types'] = $rc['types'];
     } else {
-        $settings['types'] = array();
+        $rsp['settings']['types'] = array();
     }
 
     //
@@ -76,12 +78,21 @@ function ciniki_taxes_hooks_uiSettings($ciniki, $business_id, $args) {
             return $rc;
         }
         if( isset($rc['locations']) ) {
-            $settings['locations'] = $rc['locations'];
+            $rsp['settings']['locations'] = $rc['locations'];
         } else {
-            $settings['locations'] = array();
+            $rsp['settings']['locations'] = array();
         }
     }
 
-    return array('stat'=>'ok', 'settings'=>$settings);
+    if( isset($ciniki['business']['modules']['ciniki.taxes']) 
+        && (isset($args['permissions']['owners'])
+            || isset($args['permissions']['resellers'])
+            || ($ciniki['session']['user']['perms']&0x01) == 0x01
+            )
+        ) {
+        $rsp['settings_menu_items'][] = array('priority'=>3000, 'label'=>'Taxes', 'edit'=>array('app'=>'ciniki.taxes.settings'));
+    }
+
+    return $rsp;
 }
 ?>
