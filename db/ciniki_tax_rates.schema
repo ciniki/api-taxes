@@ -23,7 +23,9 @@
 # invoice_amount:       The fixed amount to add to the invoice once.  There must be one item on the invoice
 #                       with this taxtype to trigger the addition. **future**
 #
-# flags:                Options for the tax. **future**
+# flags:                Options for the tax. 
+#
+#                           0x01 - Reverse calculate the taxes from the total (Tax Included)
 #
 # start_date:           The UTC date and time the tax is valid from.  This is used when new taxes
 #                       are introduced and become effective on a particular date and time.

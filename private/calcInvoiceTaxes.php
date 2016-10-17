@@ -58,6 +58,7 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
     // Set the calculated amount to zero
     //
     foreach($business_taxes as $tid => $tax) {
+        $business_taxes[$tid]['used'] = 'no';
         $business_taxes[$tid]['calculated_items_amount'] = 0;
         $business_taxes[$tid]['calculated_invoice_amount'] = 0;
     }
@@ -74,21 +75,46 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
                 && array_key_exists($item['taxtype_id'], $tax['types']) 
                 && $tax['location_id'] == $tax_location_id  // Double check tax_location_id
                 ) {
-                if( $tax['item_percentage'] > 0 ) {
-                    $item_amount = bcmul($item['amount'], bcdiv($tax['item_percentage'], 100, 6), 4);
-                    $business_taxes[$tid]['calculated_items_amount'] = 
-                        bcadd($business_taxes[$tid]['calculated_items_amount'], $item_amount, 4);
-                }
-                if( $tax['item_amount'] > 0 ) {
-                    $business_taxes[$tid]['calculated_items_amount'] = 
-                        bcadd($business_taxes[$tid]['calculated_items_amount'], 
-                            bcmul($item['quantity'], $tax['item_amount'], 4), 4);
-                }
-                if( $tax['invoice_amount'] > 0 ) {
-                    $business_taxes[$tid]['calculated_invoice_amount'] = 
-                        bcadd($business_taxes[$tid]['calculated_invoice_amount'], $tax['invoice_amount'], 4);
+                $business_taxes[$tid]['used'] = 'yes';
+                // 
+                // Calculate if tax is specified as included
+                //
+                if( ($tax['flags']&0x01) == 0x01 ) {
+                    if( $tax['item_percentage'] > 0 ) {
+                        $item_amount = bcmul($item['amount'], bcdiv($tax['item_percentage'], 100 + $tax['item_percentage'], 4), 4);
+                        $business_taxes[$tid]['calculated_items_amount'] = 
+                            bcadd($business_taxes[$tid]['calculated_items_amount'], $item_amount, 4);
+                    }
+                } 
+                //
+                // Calculate taxes extra
+                //
+                else {
+                    if( $tax['item_percentage'] > 0 ) {
+                        $item_amount = bcmul($item['amount'], bcdiv($tax['item_percentage'], 100, 6), 4);
+                        $business_taxes[$tid]['calculated_items_amount'] = 
+                            bcadd($business_taxes[$tid]['calculated_items_amount'], $item_amount, 4);
+                    }
+                    if( $tax['item_amount'] > 0 ) {
+                        $business_taxes[$tid]['calculated_items_amount'] = 
+                            bcadd($business_taxes[$tid]['calculated_items_amount'], 
+                                bcmul($item['quantity'], $tax['item_amount'], 4), 4);
+                    }
+                    if( $tax['invoice_amount'] > 0 ) {
+                        $business_taxes[$tid]['calculated_invoice_amount'] = 
+                            bcadd($business_taxes[$tid]['calculated_invoice_amount'], $tax['invoice_amount'], 4);
+                    }
                 }
             }
+        }
+    }
+
+    //
+    // Remove unused taxes
+    //
+    foreach($business_taxes as $tid => $tax) {
+        if( $business_taxes[$tid]['used'] == 'no' ) {
+            unset($business_taxes[$tid]);
         }
     }
 

@@ -21,6 +21,7 @@ function ciniki_taxes_ratesForDate($ciniki, $business_id, $tax_date, $location_i
         . "ciniki_tax_rates.name, "
         . "ciniki_tax_rates.item_percentage, "
         . "ciniki_tax_rates.item_amount, "
+        . "ciniki_tax_rates.flags, "
         . "ciniki_tax_rates.location_id, "
         . "ciniki_tax_rates.invoice_amount, "
         . "ciniki_tax_type_rates.type_id "
@@ -37,7 +38,7 @@ function ciniki_taxes_ratesForDate($ciniki, $business_id, $tax_date, $location_i
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'rates', 'fname'=>'id',
-            'fields'=>array('id', 'name', 'item_percentage', 'item_amount', 'location_id', 'invoice_amount')),
+            'fields'=>array('id', 'name', 'item_percentage', 'item_amount', 'flags', 'location_id', 'invoice_amount')),
         array('container'=>'types', 'fname'=>'type_id',
             'fields'=>array('id')),
         ));
