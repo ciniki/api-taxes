@@ -81,6 +81,9 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
                 //
                 if( ($tax['flags']&0x01) == 0x01 ) {
                     if( $tax['item_percentage'] > 0 ) {
+                        //
+                        // For 13% tax, tax_amount = item_amount * (13/113)
+                        //
                         $item_amount = bcmul($item['amount'], bcdiv($tax['item_percentage'], 100 + $tax['item_percentage'], 4), 4);
                         $business_taxes[$tid]['calculated_items_amount'] = 
                             bcadd($business_taxes[$tid]['calculated_items_amount'], $item_amount, 4);
