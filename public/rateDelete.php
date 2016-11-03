@@ -49,10 +49,10 @@ function ciniki_taxes_rateDelete(&$ciniki) {
             $fn = $rc['function_call'];
             $rc = $fn($ciniki, $modules, $args['business_id'], 'ciniki.taxes.rate', $args['rate_id']);
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1837', 'msg'=>'Unable to check if tax rate is still be used', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.17', 'msg'=>'Unable to check if tax rate is still be used', 'err'=>$rc['err']));
             }
             if( $rc['used'] != 'no' ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1838', 'msg'=>"Tax Rate is still in use. " . $rc['msg']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.18', 'msg'=>"Tax Rate is still in use. " . $rc['msg']));
             }
         }
     }
@@ -70,7 +70,7 @@ function ciniki_taxes_rateDelete(&$ciniki) {
         return $rc;
     }
     if( isset($rc['num']['types']) && $rc['num']['types'] > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1386', 'msg'=>'There are still tax types using this tax rate, it cannot be deleted.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.19', 'msg'=>'There are still tax types using this tax rate, it cannot be deleted.'));
     }
 
     //

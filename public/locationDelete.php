@@ -49,10 +49,10 @@ function ciniki_taxes_locationDelete(&$ciniki) {
             $fn = $rc['function_call'];
             $rc = $fn($ciniki, $modules, $args['business_id'], 'ciniki.taxes.location', $args['location_id']);
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1839', 'msg'=>'Unable to check if type is still be used', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.12', 'msg'=>'Unable to check if type is still be used', 'err'=>$rc['err']));
             }
             if( $rc['used'] != 'no' ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1842', 'msg'=>"Tax location is still in use. " . $rc['msg']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.13', 'msg'=>"Tax location is still in use. " . $rc['msg']));
             }
         }
     }
@@ -70,7 +70,7 @@ function ciniki_taxes_locationDelete(&$ciniki) {
         return $rc;
     }
     if( isset($rc['num']['rates']) && $rc['num']['rates'] > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1824', 'msg'=>'There are still tax types using this tax location, it cannot be deleted.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.14', 'msg'=>'There are still tax types using this tax location, it cannot be deleted.'));
     }
 
     //

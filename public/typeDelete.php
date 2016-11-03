@@ -55,10 +55,10 @@ function ciniki_taxes_typeDelete(&$ciniki) {
             $fn = $rc['function_call'];
             $rc = $fn($ciniki, $modules, $args['business_id'], 'ciniki.taxes.type', $args['type_id']);
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1835', 'msg'=>'Unable to check if type is still be used', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.24', 'msg'=>'Unable to check if type is still be used', 'err'=>$rc['err']));
             }
             if( $rc['used'] != 'no' ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1836', 'msg'=>"Tax Type is still in use. " . $rc['msg']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.25', 'msg'=>"Tax Type is still in use. " . $rc['msg']));
             }
         }
     }
@@ -77,7 +77,7 @@ function ciniki_taxes_typeDelete(&$ciniki) {
         return $rc;
     }
     if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1388', 'msg'=>'There are module defaults set to using this tax type, they must be changed before the tax type can be removed.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.26', 'msg'=>'There are module defaults set to using this tax type, they must be changed before the tax type can be removed.'));
     }
     
     //
@@ -94,7 +94,7 @@ function ciniki_taxes_typeDelete(&$ciniki) {
         return $rc;
     }
     if( isset($rc['num']['types']) && $rc['num']['types'] > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1389', 'msg'=>'There are still tax rates using this tax type, it cannot be deleted.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.27', 'msg'=>'There are still tax rates using this tax type, it cannot be deleted.'));
     }
 
     //

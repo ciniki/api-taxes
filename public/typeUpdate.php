@@ -53,7 +53,7 @@ function ciniki_taxes_typeUpdate(&$ciniki) {
             return $rc;
         }
         if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1392', 'msg'=>'You already have a tax type with this name, please choose another'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.29', 'msg'=>'You already have a tax type with this name, please choose another'));
         }
     }
 
@@ -95,7 +95,7 @@ function ciniki_taxes_typeUpdate(&$ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList2');
         $rc = ciniki_core_dbQueryList2($ciniki, $strsql, 'ciniki.taxes', 'rates');
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1391', 'msg'=>'Unable to find tax rates for tax type'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.30', 'msg'=>'Unable to find tax rates for tax type'));
         }
         $tax_rates = $rc['rates'];
 

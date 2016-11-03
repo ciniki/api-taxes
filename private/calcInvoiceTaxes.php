@@ -50,7 +50,7 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
         return $rc;
     }
     if( !isset($rc['rates']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1076', 'msg'=>'Unable to load taxes'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.7', 'msg'=>'Unable to load taxes'));
     }
     $business_taxes = $rc['rates'];     // Taxes in array by id
 

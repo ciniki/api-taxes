@@ -80,7 +80,7 @@ function ciniki_taxes_rateUpdate(&$ciniki) {
     //
     if( (isset($args['item_percentage']) || isset($args['item_amount']) || isset($args['invoice_amount']))
         && $num_invoices > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1379', 'msg'=>'Unable to update tax, there are invoices using this tax.  Please create a new tax'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.21', 'msg'=>'Unable to update tax, there are invoices using this tax.  Please create a new tax'));
     }
 
 
@@ -122,7 +122,7 @@ function ciniki_taxes_rateUpdate(&$ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList2');
         $rc = ciniki_core_dbQueryList2($ciniki, $strsql, 'ciniki.taxes', 'types');
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1387', 'msg'=>'Unable to find tax types for tax rate'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.22', 'msg'=>'Unable to find tax types for tax rate'));
         }
         $tax_types = $rc['types'];
 

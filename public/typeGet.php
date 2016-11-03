@@ -64,7 +64,7 @@ function ciniki_taxes_typeGet(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['types']) || !isset($rc['types'][0]['type']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1390', 'msg'=>'Unable to find the tax type'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.28', 'msg'=>'Unable to find the tax type'));
     }
     $type = $rc['types'][0]['type'];
 

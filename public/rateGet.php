@@ -80,7 +80,7 @@ function ciniki_taxes_rateGet(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['rates']) || !isset($rc['rates'][0]['rate']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1394', 'msg'=>'Unable to find the tax rate'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.20', 'msg'=>'Unable to find the tax rate'));
     }
     $rsp = array('stat'=>'ok', 'rate'=>$rc['rates'][0]['rate']);
 

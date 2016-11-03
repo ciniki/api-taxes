@@ -51,7 +51,7 @@ function ciniki_taxes_typeAdd(&$ciniki) {
         return $rc;
     }
     if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1382', 'msg'=>'You already have a tax type with this name, please choose another'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.23', 'msg'=>'You already have a tax type with this name, please choose another'));
     }
 
     //

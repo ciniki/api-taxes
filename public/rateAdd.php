@@ -45,7 +45,7 @@ function ciniki_taxes_rateAdd(&$ciniki) {
     }
 
     if( $args['item_percentage'] == '' && $args['item_amount'] == '' && $args['invoice_amount'] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1094', 'msg'=>'You must specify a item percentage, item amount or invoice amount.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.16', 'msg'=>'You must specify a item percentage, item amount or invoice amount.'));
     }
 
     //

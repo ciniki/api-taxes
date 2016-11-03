@@ -16,10 +16,10 @@ function ciniki_taxes_hooks_lookupTaxRates($ciniki, $business_id, $args) {
     // Check country is passed
     //
     if( !isset($args['country']) || $args['country'] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2966', 'msg'=>'You must specify a country.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.1', 'msg'=>'You must specify a country.'));
     }
     if( !isset($args['postal']) || $args['postal'] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2967', 'msg'=>'You must specify postal or zip code.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.2', 'msg'=>'You must specify postal or zip code.'));
     }
 
     //
@@ -37,7 +37,7 @@ function ciniki_taxes_hooks_lookupTaxRates($ciniki, $business_id, $args) {
     } else {
         $country_code = array_search($args['country'], $country_codes);
         if( $country_code === FALSE ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2968', 'msg'=>'You must specify a valid country.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.3', 'msg'=>'You must specify a valid country.'));
         }
     }
 

@@ -69,7 +69,7 @@ function ciniki_taxes_locationGet(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['locations']) || !isset($rc['locations'][0]['location']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1505', 'msg'=>'Unable to find the tax location'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.15', 'msg'=>'Unable to find the tax location'));
     }
     $location = $rc['locations'][0]['location'];
 
