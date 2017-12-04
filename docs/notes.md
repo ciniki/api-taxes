@@ -8,7 +8,7 @@ Notes
 - Tax types can have one or more tax rates applied.
 
 - When no taxes are to be applied, and tax type of Non-taxable should be created,
-  with any name the business wants, and not have any tax rates assigned to it.
+  with any name the tenant wants, and not have any tax rates assigned to it.
 
 - default tax rates should be stored in the ciniki_tax_settings table with
   the tax type.
@@ -32,11 +32,11 @@ Notes
 - it's better to more than less tax types
     - there are over 1000 tax codes in avalara
 
-- The reason to separate taxes and taxtypes, is to allow businesses to setup their
-  business products once with the tax types, and then alter taxes in the future.
+- The reason to separate taxes and taxtypes, is to allow tenants to setup their
+  tenant products once with the tax types, and then alter taxes in the future.
 
 - If a region introduces a new tax, it can be added to the taxes table, linked to tax types
-    without having to update all the business products/services.
+    without having to update all the tenant products/services.
 
 - In the future, more rules can be applied to taxes using the sapos_taxes table 
   and shipping destination if required.
