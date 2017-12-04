@@ -15,7 +15,7 @@
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
+function ciniki_taxes_calcInvoiceTaxes($ciniki, $tnid, $invoice) {
 
     if( !isset($invoice['items']) ) {
         return array('stat'=>'ok', 'taxes'=>array());
@@ -26,8 +26,8 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
     // If tax locations are not enabled, then all tax_location_ids will be zero.
     //
     $tax_location_id = 0; // Default to zero, or if no tax locations are being used
-    if( isset($ciniki['business']['modules']['ciniki.taxes']['flags']) 
-        && ($ciniki['business']['modules']['ciniki.taxes']['flags']&0x01) > 0 ) {
+    if( isset($ciniki['tenant']['modules']['ciniki.taxes']['flags']) 
+        && ($ciniki['tenant']['modules']['ciniki.taxes']['flags']&0x01) > 0 ) {
         //
         // Check if customer is specified, and if they have a location
         //
@@ -42,32 +42,32 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
     }
 
     //
-    // Get the taxes for a business, that are for the time period the invoice is in.
+    // Get the taxes for a tenant, that are for the time period the invoice is in.
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'taxes', 'private', 'ratesForDate');
-    $rc = ciniki_taxes_ratesForDate($ciniki, $business_id, $invoice['date'], $tax_location_id);
+    $rc = ciniki_taxes_ratesForDate($ciniki, $tnid, $invoice['date'], $tax_location_id);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
     if( !isset($rc['rates']) ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.7', 'msg'=>'Unable to load taxes'));
     }
-    $business_taxes = $rc['rates'];     // Taxes in array by id
+    $tenant_taxes = $rc['rates'];     // Taxes in array by id
 
     // 
     // Set the calculated amount to zero
     //
-    foreach($business_taxes as $tid => $tax) {
-        $business_taxes[$tid]['used'] = 'no';
-        $business_taxes[$tid]['calculated_items_amount'] = 0;
-        $business_taxes[$tid]['calculated_invoice_amount'] = 0;
+    foreach($tenant_taxes as $tid => $tax) {
+        $tenant_taxes[$tid]['used'] = 'no';
+        $tenant_taxes[$tid]['calculated_items_amount'] = 0;
+        $tenant_taxes[$tid]['calculated_invoice_amount'] = 0;
     }
 
     //
     // Go through the invoice items and calculate the taxes
     //
     foreach($invoice['items'] as $iid => $item) {
-        foreach($business_taxes as $tid => $tax) {
+        foreach($tenant_taxes as $tid => $tax) {
             //
             // Check if the tax should be applied
             //
@@ -75,7 +75,7 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
                 && array_key_exists($item['taxtype_id'], $tax['types']) 
                 && $tax['location_id'] == $tax_location_id  // Double check tax_location_id
                 ) {
-                $business_taxes[$tid]['used'] = 'yes';
+                $tenant_taxes[$tid]['used'] = 'yes';
                 // 
                 // Calculate if tax is specified as included
                 //
@@ -85,8 +85,8 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
                         // For 13% tax, tax_amount = item_amount * (13/113)
                         //
                         $item_amount = bcmul($item['amount'], bcdiv($tax['item_percentage'], 100 + $tax['item_percentage'], 4), 4);
-                        $business_taxes[$tid]['calculated_items_amount'] = 
-                            bcadd($business_taxes[$tid]['calculated_items_amount'], $item_amount, 4);
+                        $tenant_taxes[$tid]['calculated_items_amount'] = 
+                            bcadd($tenant_taxes[$tid]['calculated_items_amount'], $item_amount, 4);
                     }
                 } 
                 //
@@ -95,17 +95,17 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
                 else {
                     if( $tax['item_percentage'] > 0 ) {
                         $item_amount = bcmul($item['amount'], bcdiv($tax['item_percentage'], 100, 6), 4);
-                        $business_taxes[$tid]['calculated_items_amount'] = 
-                            bcadd($business_taxes[$tid]['calculated_items_amount'], $item_amount, 4);
+                        $tenant_taxes[$tid]['calculated_items_amount'] = 
+                            bcadd($tenant_taxes[$tid]['calculated_items_amount'], $item_amount, 4);
                     }
                     if( $tax['item_amount'] > 0 ) {
-                        $business_taxes[$tid]['calculated_items_amount'] = 
-                            bcadd($business_taxes[$tid]['calculated_items_amount'], 
+                        $tenant_taxes[$tid]['calculated_items_amount'] = 
+                            bcadd($tenant_taxes[$tid]['calculated_items_amount'], 
                                 bcmul($item['quantity'], $tax['item_amount'], 4), 4);
                     }
                     if( $tax['invoice_amount'] > 0 ) {
-                        $business_taxes[$tid]['calculated_invoice_amount'] = 
-                            bcadd($business_taxes[$tid]['calculated_invoice_amount'], $tax['invoice_amount'], 4);
+                        $tenant_taxes[$tid]['calculated_invoice_amount'] = 
+                            bcadd($tenant_taxes[$tid]['calculated_invoice_amount'], $tax['invoice_amount'], 4);
                     }
                 }
             }
@@ -115,12 +115,12 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice) {
     //
     // Remove unused taxes
     //
-    foreach($business_taxes as $tid => $tax) {
-        if( $business_taxes[$tid]['used'] == 'no' ) {
-            unset($business_taxes[$tid]);
+    foreach($tenant_taxes as $tid => $tax) {
+        if( $tenant_taxes[$tid]['used'] == 'no' ) {
+            unset($tenant_taxes[$tid]);
         }
     }
 
-    return array('stat'=>'ok', 'taxes'=>$business_taxes);
+    return array('stat'=>'ok', 'taxes'=>$tenant_taxes);
 }
 ?>

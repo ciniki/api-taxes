@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_taxes_hooks_lookupTaxRatesProvince($ciniki, $business_id, $args) {
+function ciniki_taxes_hooks_lookupTaxRatesProvince($ciniki, $tnid, $args) {
 
     //
     // Check country is passed
@@ -52,11 +52,11 @@ function ciniki_taxes_hooks_lookupTaxRatesProvince($ciniki, $business_id, $args)
         . "ciniki_tax_rates.invoice_amount, "
         . "ciniki_tax_rates.flags "
         . "FROM ciniki_tax_locations, ciniki_tax_rates "
-        . "WHERE ciniki_tax_locations.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_tax_locations.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_tax_locations.country_code = '" . ciniki_core_dbQuote($ciniki, $country_code) . "' "
         . "AND ciniki_tax_locations.code = '" . ciniki_core_dbQuote($ciniki, $args['province']) . "' "
         . "AND ciniki_tax_locations.id = ciniki_tax_rates.location_id "
-        . "AND ciniki_tax_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_tax_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.taxes', array(

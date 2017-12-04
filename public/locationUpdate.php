@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This method will update an existing tax for a business.  The tax amounts 
+// This method will update an existing tax for a tenant.  The tax amounts 
 // (item_percentage, item_amount, invoice_amount) can only be changed if 
 // they are not currently being referenced by any invoices.  
 //
@@ -19,7 +19,7 @@ function ciniki_taxes_locationUpdate(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'location_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Location'), 
         'name'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Name'),
         'code'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Code'),
@@ -34,10 +34,10 @@ function ciniki_taxes_locationUpdate(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'taxes', 'private', 'checkAccess');
-    $rc = ciniki_taxes_checkAccess($ciniki, $args['business_id'], 'ciniki.taxes.locationUpdate'); 
+    $rc = ciniki_taxes_checkAccess($ciniki, $args['tnid'], 'ciniki.taxes.locationUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -47,7 +47,7 @@ function ciniki_taxes_locationUpdate(&$ciniki) {
     // Update the tax location
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-    $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.taxes.location', 
+    $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.taxes.location', 
         $args['location_id'], $args, 0x07);
     if( $rc['stat'] != 'ok' ) {
         return $rc;

@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This method returns the list of tax rates both current and past for a business.
+// This method returns the list of tax rates both current and past for a tenant.
 //
 // Arguments
 // ---------
@@ -17,7 +17,7 @@ function ciniki_taxes_rateList(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -26,19 +26,19 @@ function ciniki_taxes_rateList(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'taxes', 'private', 'checkAccess');
-    $rc = ciniki_taxes_checkAccess($ciniki, $args['business_id'], 'ciniki.taxes.rateList'); 
+    $rc = ciniki_taxes_checkAccess($ciniki, $args['tnid'], 'ciniki.taxes.rateList'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
     $modules = $rc['modules'];
 
-//  ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'timezoneOffset');
-//  $utc_offset = ciniki_businesses_timezoneOffset($ciniki);
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+//  ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'timezoneOffset');
+//  $utc_offset = ciniki_tenants_timezoneOffset($ciniki);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -67,18 +67,18 @@ function ciniki_taxes_rateList(&$ciniki) {
         . "IFNULL(ciniki_tax_types.name, '') AS types "
         . "FROM ciniki_tax_rates "
         . "LEFT JOIN ciniki_tax_type_rates ON (ciniki_tax_rates.id = ciniki_tax_type_rates.rate_id "
-            . "AND ciniki_tax_type_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") ";
     if( ($modules['ciniki.taxes']['flags']&0x01) > 0 ) {
         $strsql .= "LEFT JOIN ciniki_tax_locations ON (ciniki_tax_rates.location_id = ciniki_tax_locations.id "
-            . "AND ciniki_tax_locations.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_locations.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") ";
     }
     $strsql .= "LEFT JOIN ciniki_tax_types ON (ciniki_tax_type_rates.type_id = ciniki_tax_types.id "
-            . "AND ciniki_tax_type_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND (ciniki_tax_types.flags&0x01) = 0 "
             . ") "
-        . "WHERE ciniki_tax_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_tax_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_tax_rates.start_date > UTC_TIMESTAMP() "
         . "ORDER BY ciniki_tax_rates.start_date DESC, ciniki_tax_rates.end_date DESC"
         . "";
@@ -122,18 +122,18 @@ function ciniki_taxes_rateList(&$ciniki) {
         . "IFNULL(ciniki_tax_types.name, '') AS types "
         . "FROM ciniki_tax_rates "
         . "LEFT JOIN ciniki_tax_type_rates ON (ciniki_tax_rates.id = ciniki_tax_type_rates.rate_id "
-            . "AND ciniki_tax_type_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") ";
     if( ($modules['ciniki.taxes']['flags']&0x01) > 0 ) {
         $strsql .= "LEFT JOIN ciniki_tax_locations ON (ciniki_tax_rates.location_id = ciniki_tax_locations.id "
-            . "AND ciniki_tax_locations.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_locations.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") ";
     }
     $strsql .= "LEFT JOIN ciniki_tax_types ON (ciniki_tax_type_rates.type_id = ciniki_tax_types.id "
-            . "AND ciniki_tax_type_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND (ciniki_tax_types.flags&0x01) = 0 "
             . ") "
-        . "WHERE ciniki_tax_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_tax_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_tax_rates.start_date < UTC_TIMESTAMP() "
         . "AND (ciniki_tax_rates.end_date = '0000-00-00 00:00:00' OR ciniki_tax_rates.end_date > UTC_TIMESTAMP()) "
         . "ORDER BY ciniki_tax_rates.start_date DESC, ciniki_tax_rates.end_date DESC"
@@ -177,18 +177,18 @@ function ciniki_taxes_rateList(&$ciniki) {
         . "IFNULL(ciniki_tax_types.name, '') AS types "
         . "FROM ciniki_tax_rates "
         . "LEFT JOIN ciniki_tax_type_rates ON (ciniki_tax_rates.id = ciniki_tax_type_rates.rate_id "
-            . "AND ciniki_tax_type_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") ";
     if( ($modules['ciniki.taxes']['flags']&0x01) > 0 ) {
         $strsql .= "LEFT JOIN ciniki_tax_locations ON (ciniki_tax_rates.location_id = ciniki_tax_locations.id "
-            . "AND ciniki_tax_locations.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_locations.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") ";
     }
     $strsql .= "LEFT JOIN ciniki_tax_types ON (ciniki_tax_type_rates.type_id = ciniki_tax_types.id "
-            . "AND ciniki_tax_type_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND (ciniki_tax_types.flags&0x01) = 0 "
             . ") "
-        . "WHERE ciniki_tax_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_tax_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_tax_rates.end_date <> '0000-00-00 00:00:00' "
         . "AND ciniki_tax_rates.end_date < UTC_TIMESTAMP() "
         . "ORDER BY ciniki_tax_rates.start_date DESC, ciniki_tax_rates.end_date DESC"

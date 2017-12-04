@@ -2,7 +2,7 @@
 //
 // Description
 // -----------
-// This function will return the taxes applicable for a certain date for a business.
+// This function will return the taxes applicable for a certain date for a tenant.
 //
 // Arguments
 // ---------
@@ -12,10 +12,10 @@
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_taxes_ratesForDate($ciniki, $business_id, $tax_date, $location_id) {
+function ciniki_taxes_ratesForDate($ciniki, $tnid, $tax_date, $location_id) {
     
     //
-    // Get the taxes for the business, based on the tax_date supplied
+    // Get the taxes for the tenant, based on the tax_date supplied
     //
     $strsql = "SELECT ciniki_tax_rates.id, "
         . "ciniki_tax_rates.name, "
@@ -27,9 +27,9 @@ function ciniki_taxes_ratesForDate($ciniki, $business_id, $tax_date, $location_i
         . "ciniki_tax_type_rates.type_id "
         . "FROM ciniki_tax_rates "
         . "LEFT JOIN ciniki_tax_type_rates ON (ciniki_tax_rates.id = ciniki_tax_type_rates.rate_id "
-            . "AND ciniki_tax_type_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
-        . "WHERE ciniki_tax_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_tax_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_tax_rates.location_id = '" . ciniki_core_dbQuote($ciniki, $location_id) . "' "
         . "AND ciniki_tax_rates.start_date <= '" . ciniki_core_dbQuote($ciniki, $tax_date) . "' "
         . "AND (ciniki_tax_rates.end_date = '0000-00-00 00:00:00' " // No end date specified

@@ -1,8 +1,8 @@
 #
 # Description
 # -----------
-# This table stores the tax types/codes/categories for a business.  This allows the
-# business to set up their own tax categories and link each category to one or more tax rates.
+# This table stores the tax types/codes/categories for a tenant.  This allows the
+# tenant to set up their own tax categories and link each category to one or more tax rates.
 #
 # In the future, this table can be expanded to include links to external tax calculators, #
 # such as avalara.
@@ -11,7 +11,7 @@
 # ------
 # id:                   The tax ID.
 # uuid:                 The Universal Unique ID for the invoice.
-# business_id:          The business the invoice is for.
+# tnid:                 The tenant the invoice is for.
 #
 # name:                 The name for the type (Food, Non-Taxable, Art, General, etc...)
 #
@@ -25,11 +25,11 @@
 create table ciniki_tax_types (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     name varchar(100) not null,
     flags tinyint unsigned not null,
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),
-    index sync (uuid, business_id, last_updated)
+    index sync (uuid, tnid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

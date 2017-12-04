@@ -11,7 +11,7 @@
 // Returns
 // -------
 //
-function ciniki_taxes_taxTypes($ciniki, $business_id) {
+function ciniki_taxes_taxTypes($ciniki, $tnid) {
     //
     // Get the list of tax types, both active and inactive.  This is used
     // but other modules, and inactive are required incase it's an old setting.
@@ -22,15 +22,15 @@ function ciniki_taxes_taxTypes($ciniki, $business_id) {
         . "IFNULL(ciniki_tax_rates.name,'') AS rates "
         . "FROM ciniki_tax_types "
         . "LEFT JOIN ciniki_tax_type_rates ON (ciniki_tax_types.id = ciniki_tax_type_rates.type_id "
-            . "AND ciniki_tax_type_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_tax_rates ON (ciniki_tax_type_rates.rate_id = ciniki_tax_rates.id "
-            . "AND ciniki_tax_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_tax_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_tax_rates.start_date < UTC_TIMESTAMP "
             . "AND (ciniki_tax_rates.end_date = '0000-00-00 00:00:00' "
                 . "OR ciniki_tax_rates.end_date > UTC_TIMESTAMP()) "
             . ") "
-        . "WHERE ciniki_tax_types.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_tax_types.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND (ciniki_tax_types.flags&0x01) = 0 "
         . "ORDER BY ciniki_tax_types.name "
         . "";

@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This method will add a new tax location for a business.  It will need to be assigned
+// This method will add a new tax location for a tenant.  It will need to be assigned
 // to tax types before it can be utilized anywhere.
 //
 // Arguments
@@ -18,7 +18,7 @@ function ciniki_taxes_locationAdd(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'name'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Name'),
         'code'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Code'),
         'country_code'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Country Code'),
@@ -32,10 +32,10 @@ function ciniki_taxes_locationAdd(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'taxes', 'private', 'checkAccess');
-    $rc = ciniki_taxes_checkAccess($ciniki, $args['business_id'], 'ciniki.taxes.locationAdd'); 
+    $rc = ciniki_taxes_checkAccess($ciniki, $args['tnid'], 'ciniki.taxes.locationAdd'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -44,7 +44,7 @@ function ciniki_taxes_locationAdd(&$ciniki) {
     // Add the tax location
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-    $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.taxes.location', $args, 0x07);
+    $rc = ciniki_core_objectAdd($ciniki, $args['tnid'], 'ciniki.taxes.location', $args, 0x07);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.taxes');
         return $rc;

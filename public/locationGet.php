@@ -17,7 +17,7 @@ function ciniki_taxes_locationGet(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'location_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tax Rate'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -27,18 +27,18 @@ function ciniki_taxes_locationGet(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'taxes', 'private', 'checkAccess');
-    $rc = ciniki_taxes_checkAccess($ciniki, $args['business_id'], 'ciniki.taxes.locationGet'); 
+    $rc = ciniki_taxes_checkAccess($ciniki, $args['tnid'], 'ciniki.taxes.locationGet'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
 
-//  ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'timezoneOffset');
-//  $utc_offset = ciniki_businesses_timezoneOffset($ciniki);
-//  ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-//  $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+//  ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'timezoneOffset');
+//  $utc_offset = ciniki_tenants_timezoneOffset($ciniki);
+//  ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+//  $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
 //  if( $rc['stat'] != 'ok' ) {
 //      return $rc;
 //  }
@@ -57,7 +57,7 @@ function ciniki_taxes_locationGet(&$ciniki) {
         . "ciniki_tax_locations.start_postal_zip, ciniki_tax_locations.end_postal_zip "
         . "FROM ciniki_tax_locations "
         . "WHERE ciniki_tax_locations.id = '" . ciniki_core_dbQuote($ciniki, $args['location_id']) . "' "
-        . "AND ciniki_tax_locations.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND ciniki_tax_locations.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.taxes', array(

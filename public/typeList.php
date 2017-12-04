@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This method returns the list of tax types both current and past for a business.
+// This method returns the list of tax types both current and past for a tenant.
 //
 // Arguments
 // ---------
@@ -17,7 +17,7 @@ function ciniki_taxes_typeList(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'locations'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Locations'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -27,10 +27,10 @@ function ciniki_taxes_typeList(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'taxes', 'private', 'checkAccess');
-    $rc = ciniki_taxes_checkAccess($ciniki, $args['business_id'], 'ciniki.taxes.typeList'); 
+    $rc = ciniki_taxes_checkAccess($ciniki, $args['tnid'], 'ciniki.taxes.typeList'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -54,10 +54,10 @@ function ciniki_taxes_typeList(&$ciniki) {
     }
     $strsql .= "FROM ciniki_tax_types "
         . "LEFT JOIN ciniki_tax_type_rates ON (ciniki_tax_types.id = ciniki_tax_type_rates.type_id "
-            . "AND ciniki_tax_type_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_tax_rates ON (ciniki_tax_type_rates.rate_id = ciniki_tax_rates.id "
-            . "AND ciniki_tax_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_tax_rates.start_date < UTC_TIMESTAMP "
             . "AND (ciniki_tax_rates.end_date = '0000-00-00 00:00:00' "
                 . "OR ciniki_tax_rates.end_date > UTC_TIMESTAMP()) "
@@ -65,10 +65,10 @@ function ciniki_taxes_typeList(&$ciniki) {
     if( ($modules['ciniki.taxes']['flags']&0x01) > 0 ) {
         $strsql .= "LEFT JOIN ciniki_tax_locations ON ("
             . "ciniki_tax_rates.location_id = ciniki_tax_locations.id "
-            . "AND ciniki_tax_locations.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_locations.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") ";
     }
-    $strsql .= "WHERE ciniki_tax_types.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+    $strsql .= "WHERE ciniki_tax_types.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND (ciniki_tax_types.flags&0x01) = 0 "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
@@ -112,10 +112,10 @@ function ciniki_taxes_typeList(&$ciniki) {
     }
     $strsql .= "FROM ciniki_tax_types "
         . "LEFT JOIN ciniki_tax_type_rates ON (ciniki_tax_types.id = ciniki_tax_type_rates.type_id "
-            . "AND ciniki_tax_type_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_tax_rates ON (ciniki_tax_type_rates.rate_id = ciniki_tax_rates.id "
-            . "AND ciniki_tax_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_tax_rates.start_date < UTC_TIMESTAMP "
             . "AND (ciniki_tax_rates.end_date = '0000-00-00 00:00:00' "
                 . "OR ciniki_tax_rates.end_date > UTC_TIMESTAMP()) "
@@ -123,10 +123,10 @@ function ciniki_taxes_typeList(&$ciniki) {
     if( ($modules['ciniki.taxes']['flags']&0x01) > 0 ) {
         $strsql .= "LEFT JOIN ciniki_tax_locations ON ("
             . "ciniki_tax_rates.location_id = ciniki_tax_locations.id "
-            . "AND ciniki_tax_locations.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_locations.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") ";
     }
-    $strsql .= "WHERE ciniki_tax_types.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+    $strsql .= "WHERE ciniki_tax_types.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND (ciniki_tax_types.flags&0x01) = 1 "
         . "";
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.taxes', array(
@@ -150,7 +150,7 @@ function ciniki_taxes_typeList(&$ciniki) {
     if( isset($args['locations']) && $args['locations'] == 'yes' ) {
         $strsql = "SELECT id, code, name "
             . "FROM ciniki_tax_locations "
-            . "WHERE ciniki_tax_locations.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_tax_locations.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.taxes', array(
             array('container'=>'locations', 'fname'=>'id', 'name'=>'location',

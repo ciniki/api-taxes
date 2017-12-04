@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_taxes_hooks_uiSettings($ciniki, $business_id, $args) {
+function ciniki_taxes_hooks_uiSettings($ciniki, $tnid, $args) {
 
     $rsp = array('stat'=>'ok', 'settings'=>array(), 'settings_menu_items'=>array());
 
@@ -24,15 +24,15 @@ function ciniki_taxes_hooks_uiSettings($ciniki, $business_id, $args) {
         . "IFNULL(ciniki_tax_rates.name,'') AS rates "
         . "FROM ciniki_tax_types "
         . "LEFT JOIN ciniki_tax_type_rates ON (ciniki_tax_types.id = ciniki_tax_type_rates.type_id "
-            . "AND ciniki_tax_type_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_tax_rates ON (ciniki_tax_type_rates.rate_id = ciniki_tax_rates.id "
-            . "AND ciniki_tax_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_tax_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_tax_rates.start_date < UTC_TIMESTAMP "
             . "AND (ciniki_tax_rates.end_date = '0000-00-00 00:00:00' "
                 . "OR ciniki_tax_rates.end_date > UTC_TIMESTAMP()) "
             . ") "
-        . "WHERE ciniki_tax_types.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_tax_types.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND (ciniki_tax_types.flags&0x01) = 0 "
         . "ORDER BY ciniki_tax_types.name "
         . "";
@@ -65,9 +65,9 @@ function ciniki_taxes_hooks_uiSettings($ciniki, $business_id, $args) {
             . "FROM ciniki_tax_locations "
             . "LEFT JOIN ciniki_tax_rates ON ("
                 . "ciniki_tax_locations.id = ciniki_tax_rates.location_id "
-                . "AND ciniki_tax_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND ciniki_tax_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
-            . "WHERE ciniki_tax_locations.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE ciniki_tax_locations.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.taxes', array(
             array('container'=>'locations', 'fname'=>'id', 'name'=>'location',
@@ -84,7 +84,7 @@ function ciniki_taxes_hooks_uiSettings($ciniki, $business_id, $args) {
         }
     }
 
-    if( isset($ciniki['business']['modules']['ciniki.taxes']) 
+    if( isset($ciniki['tenant']['modules']['ciniki.taxes']) 
         && (isset($args['permissions']['owners'])
             || isset($args['permissions']['resellers'])
             || ($ciniki['session']['user']['perms']&0x01) == 0x01

@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This method will update an existing tax for a business.  The tax amounts 
+// This method will update an existing tax for a tenant.  The tax amounts 
 // (item_percentage, item_amount, invoice_amount) can only be changed if 
 // they are not currently being referenced by any invoices.  
 //
@@ -19,7 +19,7 @@ function ciniki_taxes_rateUpdate(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'rate_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tax Rate'), 
         'name'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Name'),
         'location_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Location'),
@@ -38,10 +38,10 @@ function ciniki_taxes_rateUpdate(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'taxes', 'private', 'checkAccess');
-    $rc = ciniki_taxes_checkAccess($ciniki, $args['business_id'], 'ciniki.taxes.rateUpdate'); 
+    $rc = ciniki_taxes_checkAccess($ciniki, $args['tnid'], 'ciniki.taxes.rateUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -55,7 +55,7 @@ function ciniki_taxes_rateUpdate(&$ciniki) {
         $strsql = "SELECT 'invoices', COUNT(*) "
             . "FROM ciniki_sapos_invoice_taxes "
             . "WHERE taxrate_id = '" . ciniki_core_dbQuote($ciniki, $args['rate_id']) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
         $rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'num');
@@ -101,7 +101,7 @@ function ciniki_taxes_rateUpdate(&$ciniki) {
     //
     // Update the tax rate
     //
-    $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.taxes.rate', 
+    $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.taxes.rate', 
         $args['rate_id'], $args, 0x04);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -117,7 +117,7 @@ function ciniki_taxes_rateUpdate(&$ciniki) {
         $strsql = "SELECT id, type_id "
             . "FROM ciniki_tax_type_rates "
             . "WHERE ciniki_tax_type_rates.rate_id = '" . ciniki_core_dbQuote($ciniki, $args['rate_id']) . "' "
-            . "AND ciniki_tax_type_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList2');
         $rc = ciniki_core_dbQueryList2($ciniki, $strsql, 'ciniki.taxes', 'types');
@@ -132,7 +132,7 @@ function ciniki_taxes_rateUpdate(&$ciniki) {
         foreach($tax_types as $trid => $type_id) {
             // Check for any types that were previously assigned that do not exist in the new type list
             if( !in_array($type_id, $args['type_ids']) ) {
-                $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.taxes.type_rate',
+                $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.taxes.type_rate',
                     $trid, NULL, 0x04);
                 if( $rc['stat'] != 'ok' ) {
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.taxes');
@@ -148,7 +148,7 @@ function ciniki_taxes_rateUpdate(&$ciniki) {
             foreach($args['type_ids'] as $tid => $type_id) {
                 // Check for types that do not already exist in type list
                 if( !in_array($type_id, $tax_types) ) {
-                    $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.taxes.type_rate', 
+                    $rc = ciniki_core_objectAdd($ciniki, $args['tnid'], 'ciniki.taxes.type_rate', 
                         array('type_id'=>$type_id, 'rate_id'=>$args['rate_id']), 0x04);
                     if( $rc['stat'] != 'ok' ) {
                         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.taxes');
@@ -169,11 +169,11 @@ function ciniki_taxes_rateUpdate(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'taxes');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'taxes');
 
     return array('stat'=>'ok');
 }

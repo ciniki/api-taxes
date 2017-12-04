@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This method will add a new tax rate for a business.  It will need to be assigned
+// This method will add a new tax rate for a tenant.  It will need to be assigned
 // to tax types before it can be utilized anywhere.
 //
 // Arguments
@@ -18,7 +18,7 @@ function ciniki_taxes_rateAdd(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'name'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Name'),
         'location_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Location'),
         'item_percentage'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Item Percentage'),
@@ -36,10 +36,10 @@ function ciniki_taxes_rateAdd(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'taxes', 'private', 'checkAccess');
-    $rc = ciniki_taxes_checkAccess($ciniki, $args['business_id'], 'ciniki.taxes.rateAdd'); 
+    $rc = ciniki_taxes_checkAccess($ciniki, $args['tnid'], 'ciniki.taxes.rateAdd'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -63,7 +63,7 @@ function ciniki_taxes_rateAdd(&$ciniki) {
     // Add the tax rate
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-    $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.taxes.rate', $args, 0x04);
+    $rc = ciniki_core_objectAdd($ciniki, $args['tnid'], 'ciniki.taxes.rate', $args, 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.taxes');
         return $rc;
@@ -75,7 +75,7 @@ function ciniki_taxes_rateAdd(&$ciniki) {
     //
     if( isset($args['type_ids']) ) {
         foreach($args['type_ids'] as $tid) {
-            $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.taxes.type_rate', 
+            $rc = ciniki_core_objectAdd($ciniki, $args['tnid'], 'ciniki.taxes.type_rate', 
                 array('type_id'=>$tid, 'rate_id'=>$rate_id), 0x04);
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.taxes');
@@ -94,11 +94,11 @@ function ciniki_taxes_rateAdd(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'taxes');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'taxes');
 
     return array('stat'=>'ok', 'id'=>$rate_id);
 }

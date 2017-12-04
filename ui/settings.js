@@ -113,7 +113,7 @@ function ciniki_taxes_settings() {
         };
         this.taxrates.sectionData = function(s) { return this.data[s]; }
         this.taxrates.cellValue = function(s, i, j, d) {
-            if( (M.curBusiness.modules['ciniki.taxes'].flags&0x01) > 0 ) {
+            if( (M.curTenant.modules['ciniki.taxes'].flags&0x01) > 0 ) {
                 switch (j) {
                     case 0: return '<span class="maintext">' + d.rate.location_name + '</span>';
                     case 1: return '<span class="maintext">' + d.rate.name + '</span><span class="subtext">' + d.rate.types + '</span>';
@@ -165,10 +165,10 @@ function ciniki_taxes_settings() {
         };
         this.typeedit.fieldHistoryArgs = function(s, i) {
             if( s == 'current' || s == 'future' || s == 'past' ) {
-                return {'method':'ciniki.taxes.history', 'args':{'business_id':M.curBusinessID,
+                return {'method':'ciniki.taxes.history', 'args':{'tnid':M.curTenantID,
                     'object':'ciniki.taxes.type', 'object_id':this.type_id, 'field':'rate_id', 'field_value':i}};
             }
-            return {'method':'ciniki.taxes.history', 'args':{'business_id':M.curBusinessID,
+            return {'method':'ciniki.taxes.history', 'args':{'tnid':M.curTenantID,
                 'object':'ciniki.taxes.type', 'object_id':this.type_id, 'field':i}};
         }
         this.typeedit.addClose('Cancel');   
@@ -199,7 +199,7 @@ function ciniki_taxes_settings() {
             return '';
         };
         this.location.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.taxes.history', 'args':{'business_id':M.curBusinessID,
+            return {'method':'ciniki.taxes.history', 'args':{'tnid':M.curTenantID,
                 'object':'ciniki.taxes.location', 'object_id':this.location_id, 'field':i}};
         }
         this.location.addClose('Cancel');   
@@ -245,7 +245,7 @@ function ciniki_taxes_settings() {
             return '';
         };
         this.rateedit.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.taxes.history', 'args':{'business_id':M.curBusinessID,
+            return {'method':'ciniki.taxes.history', 'args':{'tnid':M.curTenantID,
                 'object':'ciniki.taxes.rate', 'object_id':this.rate_id, 'field':i}};
         }
         this.rateedit.addClose('Cancel');   
@@ -269,7 +269,7 @@ function ciniki_taxes_settings() {
             return false;
         } 
 
-        if( (M.curBusiness.modules['ciniki.taxes'].flags&0x01) > 0 ) {
+        if( (M.curTenant.modules['ciniki.taxes'].flags&0x01) > 0 ) {
             this.menu.sections.taxes.list.locations.visible = 'yes';
             this.taxrates.sections.current.num_cols = 3;
             this.taxrates.sections.current.headerValues = ['Location', 'Tax/Types','Start/End'];
@@ -277,7 +277,7 @@ function ciniki_taxes_settings() {
             this.taxrates.sections.future.headerValues = ['Location', 'Tax/Types','Start/End'];
             this.taxrates.sections.past.num_cols = 3;
             this.taxrates.sections.past.headerValues = ['Location', 'Tax/Types','Start/End'];
-            if( (M.curBusiness.modules['ciniki.taxes'].flags&0x02) > 0 ) {
+            if( (M.curTenant.modules['ciniki.taxes'].flags&0x02) > 0 ) {
                 this.location.sections.location.fields.code.active = 'yes';
             } else {
                 this.location.sections.location.fields.code.active = 'no';
@@ -297,7 +297,7 @@ function ciniki_taxes_settings() {
     };
 
     //
-    // Grab the stats for the business from the database and present the list of orders.
+    // Grab the stats for the tenant from the database and present the list of orders.
     //
     this.showMenu = function(cb) {
         this.menu.refresh();
@@ -305,7 +305,7 @@ function ciniki_taxes_settings() {
     };
 
     this.showTypes = function(cb) {
-        M.api.getJSONCb('ciniki.taxes.typeList', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.taxes.typeList', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -323,7 +323,7 @@ function ciniki_taxes_settings() {
     };
 
     this.showLocations = function(cb) {
-        M.api.getJSONCb('ciniki.taxes.locationList', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.taxes.locationList', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -336,7 +336,7 @@ function ciniki_taxes_settings() {
     };
 
     this.showRates = function(cb) {
-        M.api.getJSONCb('ciniki.taxes.rateList', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.taxes.rateList', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -362,7 +362,7 @@ function ciniki_taxes_settings() {
         this.typeedit.reset();
         this.typeedit.data = {};
         if( tid != null ) { this.typeedit.type_id = tid; }
-        M.api.getJSONCb('ciniki.taxes.rateList', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.taxes.rateList', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -389,7 +389,7 @@ function ciniki_taxes_settings() {
             }
             if( p.type_id > 0 ) {
                 p.sections._buttons.buttons.delete.visible = 'yes';
-                M.api.getJSONCb('ciniki.taxes.typeGet', {'business_id':M.curBusinessID,
+                M.api.getJSONCb('ciniki.taxes.typeGet', {'tnid':M.curTenantID,
                     'type_id':p.type_id}, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -432,7 +432,7 @@ function ciniki_taxes_settings() {
                 c += 'rate_ids=' + rates + '&';
             }
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.taxes.typeUpdate', {'business_id':M.curBusinessID,
+                M.api.postJSONCb('ciniki.taxes.typeUpdate', {'tnid':M.curTenantID,
                     'type_id':this.typeedit.type_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -446,7 +446,7 @@ function ciniki_taxes_settings() {
         } else {
             var c = this.typeedit.serializeFormSection('yes', 'type');
             c += 'rate_ids=' + rates + '&'
-            M.api.postJSONCb('ciniki.taxes.typeAdd', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.taxes.typeAdd', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -458,7 +458,7 @@ function ciniki_taxes_settings() {
 
     this.deleteType = function() {
         if( confirm("Are you sure you want to delete this tax type?") ) {
-            var rsp = M.api.getJSONCb('ciniki.taxes.typeDelete', {'business_id':M.curBusinessID, 
+            var rsp = M.api.getJSONCb('ciniki.taxes.typeDelete', {'tnid':M.curTenantID, 
                 'type_id':M.ciniki_taxes_settings.typeedit.type_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -475,7 +475,7 @@ function ciniki_taxes_settings() {
         this.location.data = {};
         if( this.location.location_id > 0 ) {
             this.location.sections._buttons.buttons.delete.visible = 'yes';
-            M.api.getJSONCb('ciniki.taxes.locationGet', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.taxes.locationGet', {'tnid':M.curTenantID,
                 'location_id':this.location.location_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -498,7 +498,7 @@ function ciniki_taxes_settings() {
         if( this.location.location_id > 0 ) {
             var c = this.location.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.taxes.locationUpdate', {'business_id':M.curBusinessID,
+                M.api.postJSONCb('ciniki.taxes.locationUpdate', {'tnid':M.curTenantID,
                     'location_id':this.location.location_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -511,7 +511,7 @@ function ciniki_taxes_settings() {
             }
         } else {
             var c = this.location.serializeForm('yes');
-            M.api.postJSONCb('ciniki.taxes.locationAdd', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.taxes.locationAdd', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -523,7 +523,7 @@ function ciniki_taxes_settings() {
 
     this.deleteLocation = function() {
         if( confirm("Are you sure you want to delete this tax location?") ) {
-            var rsp = M.api.getJSONCb('ciniki.taxes.locationDelete', {'business_id':M.curBusinessID, 
+            var rsp = M.api.getJSONCb('ciniki.taxes.locationDelete', {'tnid':M.curTenantID, 
                 'location_id':M.ciniki_taxes_settings.location.location_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -538,14 +538,14 @@ function ciniki_taxes_settings() {
         this.rateedit.reset();
         this.rateedit.data = {};
         if( rid != null ) { this.rateedit.rate_id = rid; }
-        M.api.getJSONCb('ciniki.taxes.typeList', {'business_id':M.curBusinessID, 'locations':((M.curBusiness.modules['ciniki.taxes'].flags&0x01)>0?'yes':'no')}, function(rsp) {
+        M.api.getJSONCb('ciniki.taxes.typeList', {'tnid':M.curTenantID, 'locations':((M.curTenant.modules['ciniki.taxes'].flags&0x01)>0?'yes':'no')}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
             }
             var p = M.ciniki_taxes_settings.rateedit;
             p.sections.rate.fields.location_id.options = {};
-            if( (M.curBusiness.modules['ciniki.taxes'].flags&0x01) > 0 ) {
+            if( (M.curTenant.modules['ciniki.taxes'].flags&0x01) > 0 ) {
                 if( rsp.locations != null ) {
                     p.sections.rate.fields.location_id.active = 'yes';
                     for(i in rsp.locations) {
@@ -576,7 +576,7 @@ function ciniki_taxes_settings() {
             }
             if( p.rate_id > 0 ) {
                 p.sections._buttons.buttons.delete.visible = 'yes';
-                M.api.getJSONCb('ciniki.taxes.rateGet', {'business_id':M.curBusinessID,
+                M.api.getJSONCb('ciniki.taxes.rateGet', {'tnid':M.curTenantID,
                     'rate_id':p.rate_id}, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -619,7 +619,7 @@ function ciniki_taxes_settings() {
                 c += 'type_ids=' + types + '&';
             }
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.taxes.rateUpdate', {'business_id':M.curBusinessID,
+                M.api.postJSONCb('ciniki.taxes.rateUpdate', {'tnid':M.curTenantID,
                     'rate_id':this.rateedit.rate_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -633,7 +633,7 @@ function ciniki_taxes_settings() {
         } else {
             var c = this.rateedit.serializeFormSection('yes', 'rate');
             c += 'type_ids=' + types + '&'
-            M.api.postJSONCb('ciniki.taxes.rateAdd', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.taxes.rateAdd', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -645,7 +645,7 @@ function ciniki_taxes_settings() {
 
     this.deleteRate = function() {
         if( confirm("Are you sure you want to delete this tax rate?") ) {
-            var rsp = M.api.getJSONCb('ciniki.taxes.rateDelete', {'business_id':M.curBusinessID, 
+            var rsp = M.api.getJSONCb('ciniki.taxes.rateDelete', {'tnid':M.curTenantID, 
                 'rate_id':M.ciniki_taxes_settings.rateedit.rate_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);

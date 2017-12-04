@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This method will remove a tax rate from a business, but only if it's not
+// This method will remove a tax rate from a tenant, but only if it's not
 // currently being used by any tax types or invoices.
 //
 // Arguments
@@ -18,7 +18,7 @@ function ciniki_taxes_rateDelete(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'rate_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tax Rate'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -28,10 +28,10 @@ function ciniki_taxes_rateDelete(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'taxes', 'private', 'checkAccess');
-    $rc = ciniki_taxes_checkAccess($ciniki, $args['business_id'], 'ciniki.taxes.rateDelete'); 
+    $rc = ciniki_taxes_checkAccess($ciniki, $args['tnid'], 'ciniki.taxes.rateDelete'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -47,7 +47,7 @@ function ciniki_taxes_rateDelete(&$ciniki) {
         $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'taxes', 'checkObjectUsed');
         if( $rc['stat'] == 'ok' ) {
             $fn = $rc['function_call'];
-            $rc = $fn($ciniki, $modules, $args['business_id'], 'ciniki.taxes.rate', $args['rate_id']);
+            $rc = $fn($ciniki, $modules, $args['tnid'], 'ciniki.taxes.rate', $args['rate_id']);
             if( $rc['stat'] != 'ok' ) {
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.taxes.17', 'msg'=>'Unable to check if tax rate is still be used', 'err'=>$rc['err']));
             }
@@ -63,7 +63,7 @@ function ciniki_taxes_rateDelete(&$ciniki) {
     $strsql = "SELECT 'types', COUNT(*) "
         . "FROM ciniki_tax_type_rates "
         . "WHERE ciniki_tax_type_rates.rate_id = '" . ciniki_core_dbQuote($ciniki, $args['rate_id']) . "' "
-        . "AND ciniki_tax_type_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     $rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.taxes', 'num');
     if( $rc['stat'] != 'ok' ) {
@@ -77,7 +77,7 @@ function ciniki_taxes_rateDelete(&$ciniki) {
     // Delete the tax rate
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectDelete');
-    $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.taxes.rate', 
+    $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.taxes.rate', 
         $args['rate_id'], NULL, 0x07);
     if( $rc['stat'] != 'ok' ) {
         return $rc;

@@ -1,7 +1,7 @@
 api-taxes
 =========
 
-Tax rates and codes for a business.
+Tax rates and codes for a tenant.
 
 License
 -------
