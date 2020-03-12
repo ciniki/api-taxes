@@ -130,7 +130,7 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $tnid, $invoice) {
                 // Calculate if tax is specified as included
                 //
                 if( ($tax['flags']&0x01) == 0x01 ) {
-                    if( $tax['item_percentage'] > 0 ) {
+                    if( $tax['item_percentage'] > 0 && isset($item['preorder_amount']) ) {
                         //
                         // For 13% tax, tax_amount = item_amount * (13/113)
                         //
@@ -143,7 +143,7 @@ function ciniki_taxes_calcInvoiceTaxes($ciniki, $tnid, $invoice) {
                 // Calculate taxes extra
                 //
                 else {
-                    if( $tax['item_percentage'] > 0 ) {
+                    if( $tax['item_percentage'] > 0 && isset($item['preorder_amount']) ) {
                         $item_amount = bcmul($item['preorder_amount'], bcdiv($tax['item_percentage'], 100, 6), 4);
                         $preorder_taxes[$tid]['calculated_items_amount'] = 
                             bcadd($preorder_taxes[$tid]['calculated_items_amount'], $item_amount, 4);
