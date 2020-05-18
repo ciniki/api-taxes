@@ -265,7 +265,7 @@ function ciniki_taxes_settings() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_taxes_settings', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         } 
 
@@ -457,7 +457,7 @@ function ciniki_taxes_settings() {
     };
 
     this.deleteType = function() {
-        if( confirm("Are you sure you want to delete this tax type?") ) {
+        M.confirm("Are you sure you want to delete this tax type?",null,function() {
             var rsp = M.api.getJSONCb('ciniki.taxes.typeDelete', {'tnid':M.curTenantID, 
                 'type_id':M.ciniki_taxes_settings.typeedit.type_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
@@ -466,7 +466,7 @@ function ciniki_taxes_settings() {
                     }
                     M.ciniki_taxes_settings.typeedit.close();
                 });
-        }
+        });
     };
 
     this.editLocation = function(cb, lid) {
@@ -522,7 +522,7 @@ function ciniki_taxes_settings() {
     };
 
     this.deleteLocation = function() {
-        if( confirm("Are you sure you want to delete this tax location?") ) {
+        M.confirm("Are you sure you want to delete this tax location?",null,function() {
             var rsp = M.api.getJSONCb('ciniki.taxes.locationDelete', {'tnid':M.curTenantID, 
                 'location_id':M.ciniki_taxes_settings.location.location_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
@@ -531,7 +531,7 @@ function ciniki_taxes_settings() {
                     }
                     M.ciniki_taxes_settings.location.close();
                 });
-        }
+        });
     };
 
     this.editRate = function(cb, rid) {
@@ -644,7 +644,7 @@ function ciniki_taxes_settings() {
     };
 
     this.deleteRate = function() {
-        if( confirm("Are you sure you want to delete this tax rate?") ) {
+        M.confirm("Are you sure you want to delete this tax rate?",null,function() {
             var rsp = M.api.getJSONCb('ciniki.taxes.rateDelete', {'tnid':M.curTenantID, 
                 'rate_id':M.ciniki_taxes_settings.rateedit.rate_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
@@ -653,6 +653,6 @@ function ciniki_taxes_settings() {
                     }
                     M.ciniki_taxes_settings.rateedit.close();
                 });
-        }
+        });
     };
 }
