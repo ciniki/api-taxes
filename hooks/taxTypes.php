@@ -21,10 +21,12 @@ function ciniki_taxes_hooks_taxTypes($ciniki, $tnid, $args) {
         . "IF((ciniki_tax_types.flags&0x01)=1, 'inactive', 'active') AS active, "
         . "IFNULL(ciniki_tax_rates.name,'') AS rates "
         . "FROM ciniki_tax_types "
-        . "LEFT JOIN ciniki_tax_type_rates ON (ciniki_tax_types.id = ciniki_tax_type_rates.type_id "
+        . "LEFT JOIN ciniki_tax_type_rates ON ("
+            . "ciniki_tax_types.id = ciniki_tax_type_rates.type_id "
             . "AND ciniki_tax_type_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
-        . "LEFT JOIN ciniki_tax_rates ON (ciniki_tax_type_rates.rate_id = ciniki_tax_rates.id "
+        . "LEFT JOIN ciniki_tax_rates ON ("
+            . "ciniki_tax_type_rates.rate_id = ciniki_tax_rates.id "
             . "AND ciniki_tax_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_tax_rates.start_date < UTC_TIMESTAMP "
             . "AND (ciniki_tax_rates.end_date = '0000-00-00 00:00:00' "
@@ -48,6 +50,13 @@ function ciniki_taxes_hooks_taxTypes($ciniki, $tnid, $args) {
     } else {
         $types = array();
     }
+
+    array_unshift($types, array(
+        'id' => 0,
+        'name' => 'None',
+        'active' => 'active',
+        'rates' => 'None',
+        ));
 
     return array('stat'=>'ok', 'types'=>$types);
 }
